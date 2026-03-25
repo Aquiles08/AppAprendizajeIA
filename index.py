@@ -1,17 +1,19 @@
 from flask import Flask
 from config.database import db, init_db
+from app.utils import bcrypt # Importamos desde el nuevo lugar
+from app.controllers.usuario_controller import usuario_bp
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='app/views')
+app.config['SECRET_KEY'] = 'mi_llave_secreta_123'
 
-# Inicializar la base de datos
+# Inicializamos todo
 init_db(app)
+bcrypt.init_app(app) # Lo unimos a la app aquí
 
-@app.route('/')
-def hola():
-    return "Servidor Backend de Aprendizaje IA funcionando"
+# Registramos el blueprint
+app.register_blueprint(usuario_bp)
 
-if __name__ == '__main__':
-    # Esto crea las tablas en MySQL automáticamente si no existen
+if __name__ == "__main__":
     with app.app_context():
-        db.create_all() 
+        db.create_all()
     app.run(debug=True)
