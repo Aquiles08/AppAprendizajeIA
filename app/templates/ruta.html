@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Ruta de Aprendizaje - Plataforma IA</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h2>Tu Ruta de Aprendizaje Personalizada</h2>
+
+    <p>Basado en tu nivel actual: <strong>{{ ruta.nivel_actual }}</strong></p>
+
+    <ul>
+        {% if temas %}
+            {% for tema in temas %}
+                <li>{{ tema }}</li>
+            {% endfor %}
+        {% else %}
+            <li>Aún no se ha generado una ruta. ¡Realiza el examen diagnóstico!</li>
+        {% endif %}
+    </ul>
+
+    <br>
+    <a href="{{ url_for('usuario.dashboard') }}">Volver al Dashboard</a>
+</body>
+</html>

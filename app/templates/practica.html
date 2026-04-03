@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Práctica - Plataforma IA</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h2>Práctica</h2>
+
+    <p>5 + 7 = ?</p>
+
+    <form action="{{ url_for('usuario.procesar_practica') }}" method="POST">
+        <input type="number" name="respuesta_practica" placeholder="Tu respuesta" required>
+        
+        <br><br>
+        <button type="submit">Enviar</button>
+    </form>
+
+    <br>
+    <a href="{{ url_for('usuario.dashboard') }}">Volver al Dashboard</a>
+</body>
+</html>

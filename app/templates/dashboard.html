@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<title>Dashboard</title>
+</head>
+<body>
+
+<h1>Bienvenido, {{ session['usuario_nombre'] }}</h1>
+
+<ul>
+    <li><a href="{{ url_for('usuario.examen') }}">Examen diagnóstico</a></li>
+    <li><a href="{{ url_for('usuario.ruta') }}">Ruta de aprendizaje</a></li>
+    <li><a href="{{ url_for('usuario.practica') }}">Práctica</a></li>
+    <li><a href="{{ url_for('usuario.progreso') }}">Progreso</a></li>
+    <li><a href="{{ url_for('usuario.tutor') }}">Tutor IA</a></li>
+</ul>
+
+<a href="{{ url_for('usuario.logout') }}">Cerrar sesión</a>
+</body>
+</html>

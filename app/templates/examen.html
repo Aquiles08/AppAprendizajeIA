@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Examen Diagnóstico</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h2>Examen Diagnóstico</h2>
+    <p>¿Cuánto es 2 + 2?</p>
+
+    <form action="{{ url_for('usuario.procesar_examen') }}" method="POST">
+        <input type="radio" name="pregunta_1" value="3" id="op1"> <label for="op1">3</label><br>
+        <input type="radio" name="pregunta_1" value="4" id="op2"> <label for="op2">4</label><br>
+        <input type="radio" name="pregunta_1" value="5" id="op3"> <label for="op3">5</label><br>
+
+        <br>
+        <button type="submit">Enviar Respuestas</button>
+    </form>
+
+    <br>
+    <a href="{{ url_for('usuario.dashboard') }}">Volver al Dashboard</a>
+</body>
+</html>

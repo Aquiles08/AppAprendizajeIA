@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Mi Progreso - Plataforma IA</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h2>Tu Progreso Académico</h2>
+
+    {% if progresos %}
+        {% for p in progresos %}
+            <div class="progreso-item">
+                <p><strong>{{ p.nombre_curso }}:</strong> {{ p.porcentaje_completado }}%</p>
+                
+                <div style="background-color: #ddd; width: 100%; border-radius: 5px;">
+                    <div class="barra-progreso-verde" style="--progreso: {{ p.porcentaje_completado }}%;"></div>
+                </div>
+            </div>
+            <br>
+        {% endfor %}
+    {% else %}
+        <p>Aún no tienes progreso registrado. ¡Comienza una lección!</p>
+    {% endif %}
+
+    <br>
+    <a href="{{ url_for('usuario.dashboard') }}">Volver al Dashboard</a>
+</body>
+</html>
