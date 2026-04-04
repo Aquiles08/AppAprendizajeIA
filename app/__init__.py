@@ -2,6 +2,8 @@ from flask import Flask
 from config.config import Config
 from config.database import db
 from flask_bcrypt import Bcrypt
+from app.models.curso import Curso  # <--- IMPORTA ESTO PRIMERO
+from app.models.usuario import Usuario
 
 # Inicializamos herramientas fuera para evitar errores circulares
 bcrypt = Bcrypt()
