@@ -56,3 +56,10 @@ a {
     border-radius: 5px;
     width: var(--progreso); /* Aquí lee el valor que manda Flask */
 }
+.badge {
+    padding: 5px 10px;
+    border-radius: 5px;
+    color: white;
+}
+.bg-avanzado { background-color: #2ecc71; }
+.bg-principiante { background-color: #f1c40f; }

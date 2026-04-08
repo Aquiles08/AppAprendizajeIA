@@ -1,7 +1,13 @@
-from flask import Blueprint, render_template, request, redirect, url_for, session
-from app.models.usuario import Usuario
+from flask import Blueprint, render_template, request, redirect, url_for, session, flash
+from app import db  # Usa solo este db para que SQLAlchemy funcione bien
 from app.utils import bcrypt 
-from config.database import db 
+
+# Imports específicos por archivo (Opción 1 que vimos antes)
+from app.models.usuario import Usuario
+from app.models.curso import Curso
+from app.models.respuesta import Respuesta
+# Asumiendo que ResultadoExamen y ProgresoUsuario están en usuario.py o curso.py
+# Si están en sus propios archivos, impórtalos igual que arriba.
 
 usuario_bp = Blueprint('usuario', __name__)
 
@@ -17,6 +23,7 @@ def login():
         if user and bcrypt.check_password_hash(user.contrasena, password_candidata):
             session['usuario_id'] = user.id_usuario
             session['usuario_nombre'] = user.nombre
+            session['tipo_usuario'] = user.tipo_usuario
             return redirect(url_for('usuario.dashboard'))
         else:
             return "Datos incorrectos o usuario no registrado"
@@ -100,13 +107,47 @@ def examen():
 # --- RUTA PARA PROCESAR LAS RESPUESTAS (La que te falta) ---
 @usuario_bp.route("/procesar_examen", methods=["POST"])
 def procesar_examen():
-    # 1. Aquí recibes lo que el usuario contestó en el formulario
-    # Por ejemplo, si tienes un campo 'respuesta1':
-    # r1 = request.form.get("respuesta1")
+    usuario_id = session.get('usuario_id')
     
-    # 2. Por ahora, solo mandamos un mensaje de éxito o redirigimos
-    # Puedes crear una página de "gracias" o volver al dashboard
-    return "¡Examen enviado con éxito! Estamos analizando tus resultados."
+    # Diccionario con las respuestas correctas para comparar
+    correctas = {
+        "p1": {"texto": "¿Qué es el Aprendizaje Supervisado?", "ans": "B"},
+        "p2": {"texto": "¿Cuál es la función principal de una Red Neuronal?", "ans": "B"},
+        "p3": {"texto": "¿Qué significa Overfitting?", "ans": "A"},
+        "p4": {"texto": "¿Qué es un Prompt?", "ans": "B"},
+        "p5": {"texto": "¿Cuál es un ejemplo de IA Generativa?", "ans": "B"}
+    }
+
+    aciertos = 0
+    
+    # Recorremos las 5 preguntas
+    for i in range(1, 6):
+        llave = f"p{i}"
+        resp_usuario = request.form.get(llave)
+        resp_correcta = correctas[llave]["ans"]
+        es_correcta = 1 if resp_usuario == resp_correcta else 0
+        
+        if es_correcta: aciertos += 1
+
+        # GUARDAR EN TU TABLA 'respuesta'
+        nueva_resp = Respuesta(
+            id_evaluacion=usuario_id, # Usamos el ID usuario como referencia
+            pregunta=correctas[llave]["texto"],
+            respuesta_usuario=resp_usuario,
+            respuesta_correcta=resp_correcta,
+            resultado=es_correcta
+        )
+        db.session.add(nueva_resp)
+
+    # Calcular nivel y actualizar tabla Usuario
+    puntaje = (aciertos / 5) * 100
+    nivel = "Avanzado" if puntaje >= 70 else "Principiante"
+    
+    user = Usuario.query.get(usuario_id)
+    user.nivel = nivel
+    
+    db.session.commit()
+    return render_template("resultado_examen.html", puntaje=puntaje, nivel=nivel, aciertos=aciertos)
 
 @usuario_bp.route("/ruta")
 def ruta():
@@ -166,6 +207,19 @@ def preguntar_tutor():
     ]
     
     return render_template("tutor.html", historial=historial_simulado)
+
+# --- RUTA PARA MOSTRAR LOS REPORTES A DOCENTES ---
+@usuario_bp.route("/reportes")
+def reportes():
+    # 1. Seguridad: Solo si el usuario es Docente o Admin
+    if session.get('tipo_usuario') != 'Docente':
+        return "Acceso denegado. Solo los docentes pueden ver reportes.", 403
+
+    # 2. Consultar todos los alumnos que ya hicieron el examen
+    # Traemos nombre, correo y nivel
+    alumnos = Usuario.query.filter(Usuario.tipo_usuario == 'Estudiante').all()
+
+    return render_template("reportes.html", alumnos=alumnos)
 
 # --- FIX PARA EL LOGOUT ---
 # En tu HTML dice 'usuario.logout', pero en tu Python la función se llama 'salir'

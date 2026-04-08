@@ -12,6 +12,7 @@ class Usuario(db.Model):
     fecha_registro = db.Column(db.DateTime, default=datetime.utcnow)
     # Agregamos la relación con el curso
     id_curso = db.Column(db.Integer, db.ForeignKey('curso.id_curso'), nullable=True)
-
+    nivel = db.Column(db.String(50), default="Sin realizar examen")
+    
     def __repr__(self):
         return f'<Usuario {self.nombre}>'

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Panel de Reportes - Docente</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>📊 Reporte de Diagnóstico Inicial</h2>
+        <p>Lista de estudiantes y niveles asignados por la plataforma.</p>
+        <hr>
+
+        <table border="1" style="width:100%; border-collapse: collapse; text-align: left;">
+            <thead style="background-color: #34495e; color: white;">
+                <tr>
+                    <th style="padding: 10px;">Nombre del Estudiante</th>
+                    <th style="padding: 10px;">Correo</th>
+                    <th style="padding: 10px;">Nivel Asignado</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for alumno in alumnos %}
+                <tr>
+                    <td style="padding: 10px;">{{ alumno.nombre }}</td>
+                    <td style="padding: 10px;">{{ alumno.correo }}</td>
+                    <td style="padding: 10px;">
+                        <span class="badge {% if alumno.nivel == 'Avanzado' %}bg-avanzado{% else %}bg-principiante{% endif %}">
+                            {{ alumno.nivel }}
+                        </span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <br>
+        <a href="{{ url_for('usuario.dashboard') }}">Volver al Dashboard</a>
+    </div>
+</body>
+</html>

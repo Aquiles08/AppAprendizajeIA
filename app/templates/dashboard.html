@@ -7,6 +7,14 @@
 <body>
 
 <h1>Bienvenido, {{ session['usuario_nombre'] }}</h1>
+<p>Tu nivel actual es: <strong>{{ session.get('nivel', 'No definido ') }}</strong></p>
+
+{% if session['tipo_usuario'] == 'Docente' %}
+    <div class="seccion-docente" style="border: 2px dashed #34495e; padding: 15px; margin-top: 20px;">
+        <h3>Panel de Control Docente</h3>
+        <a href="{{ url_for('usuario.reportes') }}" class="btn">Ver Reportes de Alumnos</a>
+    </div>
+{% endif %}
 
 <ul>
     <li><a href="{{ url_for('usuario.examen') }}">Examen diagnóstico</a></li>

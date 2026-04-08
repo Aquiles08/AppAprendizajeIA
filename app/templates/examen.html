@@ -1,24 +1,59 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Examen Diagnóstico</title>
+    <title>Examen Diagnóstico - Plataforma IA</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h2>Examen Diagnóstico</h2>
-    <p>¿Cuánto es 2 + 2?</p>
+    <div class="container">
+        <h2>Examen Diagnóstico de IA</h2>
+        <p>Responde con sinceridad para generar tu ruta de aprendizaje personalizada.</p>
+        <hr>
 
-    <form action="{{ url_for('usuario.procesar_examen') }}" method="POST">
-        <input type="radio" name="pregunta_1" value="3" id="op1"> <label for="op1">3</label><br>
-        <input type="radio" name="pregunta_1" value="4" id="op2"> <label for="op2">4</label><br>
-        <input type="radio" name="pregunta_1" value="5" id="op3"> <label for="op3">5</label><br>
+        <form action="{{ url_for('usuario.procesar_examen') }}" method="POST">
+            
+            <div class="pregunta">
+                <p><strong>1. ¿Qué es el Aprendizaje Supervisado?</strong></p>
+                <input type="radio" name="p1" value="A" required> A) Aprender sin datos etiquetados.<br>
+                <input type="radio" name="p1" value="B"> B) Entrenar un modelo con ejemplos de entrada y salida conocida.<br>
+                <input type="radio" name="p1" value="C"> C) Un tipo de hardware para IA.<br>
+            </div>
+
+            <div class="pregunta">
+                <p><strong>2. ¿Cuál es la función principal de una Red Neuronal?</strong></p>
+                <input type="radio" name="p2" value="A" required> A) Almacenar archivos en la nube.<br>
+                <input type="radio" name="p2" value="B"> B) Reconocer patrones complejos en los datos.<br>
+                <input type="radio" name="p2" value="C"> C) Limpiar virus de la computadora.<br>
+            </div>
+
+            <div class="pregunta">
+                <p><strong>3. ¿Qué significa "Overfitting" o Sobreajuste?</strong></p>
+                <input type="radio" name="p3" value="A" required> A) El modelo memoriza los datos de entrenamiento y falla con datos nuevos.<br>
+                <input type="radio" name="p3" value="B"> B) El modelo es demasiado simple para entender los datos.<br>
+                <input type="radio" name="p3" value="C"> C) Cuando la computadora se calienta mucho.<br>
+            </div>
+
+            <div class="pregunta">
+                <p><strong>4. ¿Qué es un "Prompt"?</strong></p>
+                <input type="radio" name="p4" value="A" required> A) Un error de programación.<br>
+                <input type="radio" name="p4" value="B"> B) La instrucción o texto que se le da a una IA generativa.<br>
+                <input type="radio" name="p4" value="C"> C) Una tarjeta de video potente.<br>
+            </div>
+
+            <div class="pregunta">
+                <p><strong>5. ¿Cuál de estos es un ejemplo de IA Generativa?</strong></p>
+                <input type="radio" name="p5" value="A" required> A) Excel.<br>
+                <input type="radio" name="p5" value="B"> B) ChatGPT.<br>
+                <input type="radio" name="p5" value="C"> C) Calculadora de Windows.<br>
+            </div>
+
+            <br>
+            <button type="submit" class="btn-enviar">Finalizar Examen</button>
+        </form>
 
         <br>
-        <button type="submit">Enviar Respuestas</button>
-    </form>
-
-    <br>
-    <a href="{{ url_for('usuario.dashboard') }}">Volver al Dashboard</a>
+        <a href="{{ url_for('usuario.dashboard') }}">Cancelar y volver</a>
+    </div>
 </body>
 </html>

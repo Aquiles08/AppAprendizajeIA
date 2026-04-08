@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Tus Resultados - Plataforma IA</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container" style="text-align: center; padding: 50px;">
+        <h1>🚀 ¡Examen Completado!</h1>
+        <hr>
+        
+        <div class="card-resultado" style="background: #f9f9f9; padding: 30px; border-radius: 15px; border: 2px solid #3498db; display: inline-block;">
+            <h2>Tu Puntaje: <span style="color: #3498db;">{{ puntaje }}%</span></h2>
+            <p>Has acertado <strong>{{ aciertos }}</strong> de 5 preguntas.</p>
+            
+            <div style="margin-top: 20px;">
+                <p>Nivel asignado:</p>
+                <h1 style="text-transform: uppercase; color: #2ecc71;">{{ nivel }}</h1>
+            </div>
+        </div>
+
+        <div style="margin-top: 30px;">
+            <p>Basado en tu nivel, hemos actualizado tu <strong>Ruta de Aprendizaje</strong>.</p>
+            <a href="{{ url_for('usuario.dashboard') }}" class="btn" style="background: #34495e; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Ir al Dashboard</a>
+            <a href="{{ url_for('usuario.ruta') }}" class="btn" style="background: #3498db; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Ver mi Ruta</a>
+        </div>
+    </div>
+</body>
+</html>
