@@ -1,24 +1,49 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Login - Plataforma IA</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <meta charset="UTF-8">
+  <title>Iniciar Sesión - Blossom</title>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
 
-    <h2>Iniciar Sesión</h2>
+  <header class="main-header">
+    <div class="logo">
+      <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Blossom Logo">
+    </div>
+    <p class="motto">Inicia sesión o regístrate para comenzar tu viaje del aprendizaje</p>
+  </header>
 
-    <form action="{{ url_for('usuario.login') }}" method="POST">
-        <input type="email" name="correo" placeholder="Correo electrónico" required><br><br>
+  <main class="login-container">
+    
+    <section class="welcome-section">
+      <h1 class="welcome-title">Bienvenido!!</h1>
+      
+      <div class="math-symbol-collage"></div>
+    </section>
+    
+    <section class="form-section">
+      <h2 class="form-title">INICIAR SESIÓN</h2>
+      
+      <form action="{{ url_for('usuario.login') }}" method="POST" class="blossom-form">
         
-        <input type="password" name="contrasena" placeholder="Contraseña" required><br><br>
+        <input type="email" name="correo" class="form-input" placeholder="tu @email.com" required>
         
-        <button type="submit">Entrar</button>
-    </form>
+        <input type="password" name="contrasena" class="form-input" placeholder="contraseña" required>
+        
+        <button type="submit" class="submit-btn">INICIAR SESIÓN</button>
+      
+      </form>
 
-    <br>
-    <a href="{{ url_for('usuario.registro') }}">¿No tienes cuenta? Regístrate aquí</a>
+      <div class="register-link-container">
+        <p>¿No tienes cuenta aún? 
+            <a href="{{ url_for('usuario.registro') }}" class="register-link">Regístrate aquí</a>
+        </p>
+        </div>
+    </section>
+
+  </main>
 
 </body>
 </html>

@@ -1,29 +1,73 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-<title>Dashboard</title>
+    <meta charset="UTF-8">
+    <title>Dashboard - Blossom</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
 
-<h1>Bienvenido, {{ session['usuario_nombre'] }}</h1>
-<p>Tu nivel actual es: <strong>{{ session.get('nivel', 'No definido ') }}</strong></p>
+    <header class="main-header">
+        <div class="logo">
+            <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Blossom Logo">
+        </div>
+        <div class="user-avatar-header">
+            <div class="avatar-circle-sm">
+                <span>{{ session['usuario_nombre'][0] | upper }}</span>
+            </div>
+            <span class="user-name-header">{{ session['usuario_nombre'] }}</span>
+        </div>
+    </header>
 
-{% if session['tipo_usuario'] == 'Docente' %}
-    <div class="seccion-docente" style="border: 2px dashed #34495e; padding: 15px; margin-top: 20px;">
-        <h3>Panel de Control Docente</h3>
-        <a href="{{ url_for('usuario.reportes') }}" class="btn">Ver Reportes de Alumnos</a>
-    </div>
-{% endif %}
+    <main class="dashboard-container">
+        
+        <section class="welcome-banner">
+            <div class="banner-text">
+                <h1>Bienvenido, {{ session['usuario_nombre'] }}!!</h1>
+                <p>Continua con tu viaje de aprendizaje personalizado</p>
+                <span class="level-badge">{{ session.get('nivel', 'Pendiente') }}</span>
+            </div>
+            <div class="banner-avatar">
+                <div class="avatar-circle-lg">
+                    <span>{{ session['usuario_nombre'][0] | upper }}</span>
+                </div>
+            </div>
+        </section>
 
-<ul>
-    <li><a href="{{ url_for('usuario.examen') }}">Examen diagnóstico</a></li>
-    <li><a href="{{ url_for('usuario.ruta') }}">Ruta de aprendizaje</a></li>
-    <li><a href="{{ url_for('usuario.practica') }}">Práctica</a></li>
-    <li><a href="{{ url_for('usuario.progreso') }}">Progreso</a></li>
-    <li><a href="{{ url_for('usuario.tutor') }}">Tutor IA</a></li>
-</ul>
+        <section class="navigation-grid">
+            
+            <a href="{{ url_for('usuario.examen') }}" class="nav-button">
+                <span>Examen diagnostico</span>
+            </a>
+            
+            <a href="{{ url_for('usuario.ruta') }}" class="nav-button">
+                <span>Rutas de aprendizaje</span>
+            </a>
+            
+            <a href="{{ url_for('usuario.practica') }}" class="nav-button">
+                <span>Practica</span>
+            </a>
+            
+            <a href="{{ url_for('usuario.progreso') }}" class="nav-button">
+                <span>Progreso</span>
+            </a>
+            
+            <a href="{{ url_for('usuario.tutor') }}" class="nav-button">
+                <span>Tutor IA</span>
+            </a>
 
-<a href="{{ url_for('usuario.logout') }}">Cerrar sesión</a>
+            <div class="nav-button placeholder-button">
+                <span>Perfil</span>
+            </div>
+
+        </section>
+
+        <div class="logout-container">
+            <a href="{{ url_for('usuario.logout') }}" class="logout-link">Cerrar sesión</a>
+        </div>
+
+    </main>
+
 </body>
 </html>

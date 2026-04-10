@@ -2,18 +2,57 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Examen Diagnóstico - Plataforma IA</title>
+    <title>Examen Diagnóstico - Blossom</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <div class="container">
-        <h2>Examen Diagnóstico de IA</h2>
-        <p>Responde con sinceridad para generar tu ruta de aprendizaje personalizada.</p>
-        <hr>
 
-        <form action="{{ url_for('usuario.procesar_examen') }}" method="POST">
-            
-            <div class="pregunta">
+    <header class="main-header">
+        <div class="logo">
+            <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Blossom Logo">
+        </div>
+        <div class="user-avatar-header">
+            <div class="avatar-circle-sm">
+                <span>{{ session['usuario_nombre'][0] | upper }}</span>
+            </div>
+            <span class="user-name-header">{{ session['usuario_nombre'] }}</span>
+        </div>
+    </header>
+
+    <main class="examen-container">
+        <header class="examen-header">
+            <h1 class="welcome-title" style="color: var(--blossom-purple); font-size: 2.5em;">Examen diagnostico</h1>
+            <p>Responde con sinceridad, este examen nos ayudara a determinar tu nivel actual y crear una ruta de aprendizaje personalizada</p>
+        </header>
+
+        <form action="{{ url_for('usuario.procesar_examen') }}" method="POST" class="examen-form">
+            {% for pregunta in preguntas %}
+            <div class="pregunta-card">
+                <div class="pregunta-header">
+                    <div class="numero-circulo">
+                        <span>{{ loop.index }}</span>
+                    </div>
+                    <div class="pregunta-texto">
+                        <p>{{ pregunta.texto }}</p>
+                    </div>
+                </div>
+
+                <div class="opciones-container">
+                    {% for opcion in pregunta.opciones %}
+                    <label class="opcion-item">
+                        <input type="radio" name="pregunta_{{ pregunta.id }}" value="{{ opcion.id }}" required>
+                        <div class="opcion-diseno">
+                            <span class="punto-indicador"></span>
+                            <span class="texto-respuesta">{{ opcion.texto }}</span>
+                        </div>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+
+                        <div class="pregunta">  
                 <p><strong>1. ¿Qué es el Aprendizaje Supervisado?</strong></p>
                 <input type="radio" name="p1" value="A" required> A) Aprender sin datos etiquetados.<br>
                 <input type="radio" name="p1" value="B"> B) Entrenar un modelo con ejemplos de entrada y salida conocida.<br>
@@ -48,12 +87,12 @@
                 <input type="radio" name="p5" value="C"> C) Calculadora de Windows.<br>
             </div>
 
-            <br>
-            <button type="submit" class="btn-enviar">Finalizar Examen</button>
+            <div class="footer-examen" style="text-align: center; margin-top: 40px;">
+                <button type="submit" class="submit-btn-wide">Finalizar Examen</button>
+            </div>
+    
         </form>
+    </main>
 
-        <br>
-        <a href="{{ url_for('usuario.dashboard') }}">Cancelar y volver</a>
-    </div>
 </body>
 </html>

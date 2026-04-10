@@ -2,22 +2,67 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Práctica - Plataforma IA</title>
+    <title>Práctica - Blossom</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h2>Práctica</h2>
 
-    <p>5 + 7 = ?</p>
+    <header class="main-header">
+        <div class="logo">
+            <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Blossom Logo">
+        </div>
+        <div class="user-avatar-header">
+            <div class="avatar-circle-sm">
+                <span>{{ session['usuario_nombre'][0] | upper }}</span>
+            </div>
+            <span class="user-name-header">{{ session['usuario_nombre'] }}</span>
+        </div>
+    </header>
 
-    <form action="{{ url_for('usuario.procesar_practica') }}" method="POST">
-        <input type="number" name="respuesta_practica" placeholder="Tu respuesta" required>
-        
-        <br><br>
-        <button type="submit">Enviar</button>
-    </form>
+    <main class="practica-container">
+        <div class="practica-header-row">
+            <div class="practica-titles">
+            <h1 class="welcome-title">Práctica</h1>
+            <p>Ejercicios interactivos con retroalimentación paso a paso adaptados a tu nivel</p>
+            </div>
+            <a href="{{ url_for('usuario.dashboard') }}" class="btn-inicio-small">Inicio</a>
+        </div>
 
-    <br>
-    <a href="{{ url_for('usuario.dashboard') }}">Volver al Dashboard</a>
+        <section class="practica-content-card">
+            <div class="temas-selector-container">
+                <label for="temas-select" class="temas-label">Temas</label>
+                <div class="custom-select-wrapper">
+                    <select name="tema" id="temas-select" onchange="location = this.value;">
+                        <option value="#" selected>Operaciones Básicas</option>
+                        <option value="{{ url_for('usuario.practica', tema='ecuaciones') }}">Ecuaciones Lineales</option>
+                        <option value="{{ url_for('usuario.practica', tema='sistemas') }}">Sistemas de Ecuaciones</option>
+                    </select>
+                    <div class="select-arrow"></div>
+                </div>
+            </div>
+
+            <form action="{{ url_for('usuario.procesar_practica') }}" method="POST" class="ejercicios-grid">
+                
+                {% for ejercicio in ejercicios %}
+                <div class="ejercicio-card">
+                    <div class="ejercicio-header">
+                        <span class="ejercicio-numero">Ejercicio {{ loop.index }}.</span>
+                        <p class="ejercicio-enunciado">{{ ejercicio.pregunta }}</p>
+                    </div>
+                    
+                    <input type="text" name="respuesta_{{ ejercicio.id }}" class="input-respuesta" placeholder="Tu respuesta" required>
+                    
+                    <button type="button" class="btn-guardar-local" onclick="this.classList.add('saved')">Guardar respuesta</button>
+                </div>
+                {% endfor %}
+
+                <div class="submit-practica-container">
+                    <button type="submit" class="submit-btn-wide">Enviar respuestas</button>
+                </div>
+            </form>
+        </section>
+    </main>
+
 </body>
 </html>

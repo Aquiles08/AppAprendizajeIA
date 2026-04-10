@@ -157,19 +157,24 @@ def ruta():
     }
     
     # 2. Creamos una lista de temas (puedes traerlos de la DB después)
-    lista_temas = [
-        "Introducción a Redes Neuronales",
-        "Lógica Difusa",
-        "Algoritmos de Búsqueda"
+    modulos_db = [
+        {'id': 1, 'nombre': 'Fundamentos', 'progreso': 100},
+        {'id': 2, 'nombre': 'Ecuaciones Lineales', 'progreso': 50},
+        {'id': 3, 'nombre': 'Sistema de Ecuaciones', 'progreso': 0}
     ]
     
     # 3. Se los pasamos al HTML con los nombres EXACTOS que usaste allá
-    return render_template("ruta.html", ruta=info_ruta, temas=lista_temas)
+    return render_template("ruta.html", ruta=info_ruta, modulos=modulos_db)
 
 # --- RUTA PARA MOSTRAR LA PÁGINA DE PRÁCTICA ---
-@usuario_bp.route("/practica")
+@usuario_bp.route('/practica')
 def practica():
-    return render_template("practica.html")
+    # Lista de ejemplo con el formato que espera el HTML
+    ejercicios_lista = [
+        {'id': 1, 'pregunta': '¿Cuánto es 5 + 7?'},
+        {'id': 2, 'pregunta': '¿Cuánto es 3 + 7?'}
+    ]
+    return render_template('practica.html', ejercicios=ejercicios_lista)
 
 # --- RUTA PARA PROCESAR EL RESULTADO (La que soluciona el error) ---
 @usuario_bp.route("/procesar_practica", methods=["POST"])
@@ -185,9 +190,16 @@ def procesar_practica():
     # Por ahora solo mostramos el mensaje en pantalla
     return mensaje
 
-@usuario_bp.route("/progreso")
+@usuario_bp.route('/progreso')
 def progreso():
-    return render_template("progreso.html")
+    # Estos datos vendrían de tu consulta SQL a la base de datos
+    datos_progreso = {
+        'nivel': 'Principiante',
+        'racha': 12,
+        'ejercicios_total': 37,
+        'temas_total': 8
+    }
+    return render_template('progreso.html', stats=datos_progreso)
 
 # --- RUTA PARA MOSTRAR EL TUTOR ---
 @usuario_bp.route("/tutor")

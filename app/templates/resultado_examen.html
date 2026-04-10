@@ -2,29 +2,50 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Tus Resultados - Plataforma IA</title>
+    <title>Resultado - Blossom</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <div class="container" style="text-align: center; padding: 50px;">
-        <h1>🚀 ¡Examen Completado!</h1>
-        <hr>
-        
-        <div class="card-resultado" style="background: #f9f9f9; padding: 30px; border-radius: 15px; border: 2px solid #3498db; display: inline-block;">
-            <h2>Tu Puntaje: <span style="color: #3498db;">{{ puntaje }}%</span></h2>
-            <p>Has acertado <strong>{{ aciertos }}</strong> de 5 preguntas.</p>
-            
-            <div style="margin-top: 20px;">
-                <p>Nivel asignado:</p>
-                <h1 style="text-transform: uppercase; color: #2ecc71;">{{ nivel }}</h1>
-            </div>
-        </div>
 
-        <div style="margin-top: 30px;">
-            <p>Basado en tu nivel, hemos actualizado tu <strong>Ruta de Aprendizaje</strong>.</p>
-            <a href="{{ url_for('usuario.dashboard') }}" class="btn" style="background: #34495e; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Ir al Dashboard</a>
-            <a href="{{ url_for('usuario.ruta') }}" class="btn" style="background: #3498db; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Ver mi Ruta</a>
+    <header class="main-header">
+        <div class="logo">
+            <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Blossom Logo">
         </div>
-    </div>
+        <div class="user-avatar-header">
+            <div class="avatar-circle-sm">
+                <span>{{ session['usuario_nombre'][0] | upper }}</span>
+            </div>
+            <span class="user-name-header">{{ session['usuario_nombre'] }}</span>
+        </div>
+    </header>
+
+    <main class="resultado-container">
+        <h1 class="resultado-titulo">Examen completado :)</h1>
+
+        <section class="resultado-card">
+            <div class="stats-row">
+                <span class="stat-label">Tu Puntaje:</span>
+                <span class="stat-value">{{ puntaje }}%</span>
+            </div>
+            
+            <p class="aciertos-text">Has acertado <strong>{{ aciertos }}</strong> de <strong>{{ total }}</strong> preguntas.</p>
+            
+            <div class="nivel-section">
+                <p>Nivel asignado:</p>
+                <div class="nivel-badge-resultado">
+                    {{ nivel | upper }}
+                </div>
+            </div>
+        </section>
+
+        <p class="footer-mensaje">Basado en tu nivel hemos actualizado tu <strong>Ruta de Aprendizaje</strong></p>
+
+        <div class="resultado-actions">
+            <a href="{{ url_for('usuario.dashboard') }}" class="btn-resultado-secundario">Regresar al Inicio</a>
+            <a href="{{ url_for('usuario.ruta') }}" class="btn-resultado-primario">Ir a Ruta de Aprendizaje</a>
+        </div>
+    </main>
+
 </body>
 </html>

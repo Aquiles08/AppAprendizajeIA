@@ -2,30 +2,58 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Registro - Plataforma IA</title>
+    <title>Crear Cuenta - Blossom</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
 
-    <h2>Crear Cuenta</h2>
+    <header class="main-header">
+        <div class="logo">
+            <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Blossom Logo">
+        </div>
+        <p class="motto">Inicia sesión o regístrate para comenzar tu viaje del aprendizaje</p>
+    </header>
 
-    <form action="{{ url_for('usuario.crear_cuenta') }}" method="POST">
-        <input type="text" name="nombre" placeholder="Nombre completo" required><br><br>
+    <main class="signup-container">
+        <h2 class="form-title">CREAR CUENTA</h2>
 
-        <input type="email" name="correo" placeholder="Correo electrónico" required><br><br>
+        <form action="{{ url_for('usuario.crear_cuenta') }}" method="POST" class="blossom-signup-form">
+            
+            <div class="signup-content">
+                <div class="inputs-column">
+                    <input type="text" name="nombre" class="form-input" placeholder="nombre completo" required>
+                    <input type="password" name="contrasena" class="form-input" placeholder="contraseña" required>
+                    <input type="email" name="correo" class="form-input" placeholder="tu @email.com" required>
+                </div>
 
-        <input type="password" name="contrasena" placeholder="Contraseña" required><br><br>
+                <div class="role-selection-column">
+                    <p class="role-label">Rol</p>
+                    <div class="roles-container">
+                        
+                        <label class="role-card">
+                            <input type="radio" name="tipo_usuario" value="Estudiante" checked>
+                            <div class="role-design">
+                                <img src="{{ url_for('static', filename='img/alumno.png') }}" alt="Estudiante">
+                                <span>Estudiante</span>
+                            </div>
+                        </label>
 
-        <select name="tipo_usuario">
-            <option value="Estudiante">Estudiante</option>
-            <option value="Docente">Docente</option>
-        </select>
+                        <label class="role-card">
+                            <input type="radio" name="tipo_usuario" value="Docente">
+                            <div class="role-design">
+                                <img src="{{ url_for('static', filename='img/profesor.png') }}" alt="Profesor">
+                                <span>Profesor</span>
+                            </div>
+                        </label>
 
-        <button type="submit">Registrarse</button>
-    </form>
+                    </div>
+                </div>
+            </div>
 
-    <br>
-    <a href="{{ url_for('usuario.login') }}">¿Ya tienes cuenta? Inicia sesión</a>
+            <button type="submit" class="submit-btn-wide">REGISTRARSE</button>
+        </form>
+    </main>
 
 </body>
 </html>

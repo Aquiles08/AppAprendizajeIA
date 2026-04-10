@@ -1,10 +1,4 @@
 /* General */
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f9;
-    padding: 20px;
-    color: #333;
-}
 
 h2 {
     color: #2c3e50;
@@ -63,3 +57,1144 @@ a {
 }
 .bg-avanzado { background-color: #2ecc71; }
 .bg-principiante { background-color: #f1c40f; }
+
+
+/* INICIO DE SESIÓN */
+
+/* --- Estilos Generales --- */
+:root {
+  --blossom-purple: #6d2bce; /* TU MORADO ESPECÍFICO */
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  /* IMPORTAMOS TU TIPOGRAFÍA QUICKSAND */
+  font-family: 'Quicksand', sans-serif;
+  background-color: #ffffff;
+}
+
+/* --- Encabezado (Logo y Lema) --- */
+.main-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 40px;
+  border-bottom: 2px solid #eaeaea;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+}
+
+.logo img {
+  height: 40px; /* Ajusta según el tamaño de tu logo */
+}
+
+.motto {
+  color: #555;
+  font-size: 1.1em;
+}
+
+/* --- Contenedor Principal (Bienvenido + Formulario) --- */
+.login-container {
+  display: flex;
+  height: calc(100vh - 80px); /* Ajusta para descontar el header */
+  align-items: center;
+  justify-content: center;
+}
+
+/* --- Área de Bienvenida (DONDE VAN LAS MATEMÁTICAS) --- */
+.welcome-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 40px;
+  
+  /* ESTO ES LO MÁS IMPORTANTE PARA TUS SÍMBOLOS */
+  position: relative;
+  /* Fondo principal blanco */
+  background-color: #ffffff;
+}
+
+.welcome-title {
+  color: var(--blossom-purple);
+  font-size: 3em;
+  font-weight: bold;
+  margin-bottom: 40px; /* Espacio para las imágenes */
+  z-index: 10; /* Para que el texto flote sobre los símbolos */
+}
+
+/* Esta es la zona amarilla de las 'X' en tu imagen */
+.math-symbol-collage {
+  width: 250px;
+  height: 250px;
+  
+  /* --- COLLAGE DE SÍMBOLOS MATEMÁTICOS --- */
+  background-image: 
+    url('img/division_rbg.png'),
+    url('img/infinito_rbg.png'),
+    url('img/raiz_rbg.png'),
+    url('img/igualdad_rbg.png'),
+    url('img/suma_rbg.png'); 
+    
+  background-position: 
+    10% 10%,   /* Arriba-izquierda */
+    85% 15%,   /* Arriba-derecha */
+    15% 85%,   /* Abajo-izquierda */
+    80% 80%,   /* Abajo-derecha */
+    50% 50%;   /* Centro */
+    
+  background-repeat: no-repeat;
+  background-size: 50px; 
+  opacity: 0.8; 
+}
+
+/* --- Sección del Formulario --- */
+.form-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  padding-bottom: 60px;
+}
+
+.form-title {
+  color: var(--blossom-purple);
+  font-size: 2em;
+  font-weight: bold;
+  text-transform: uppercase;
+  margin-bottom: 30px;
+}
+
+.blossom-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px; /* Espacio entre campos */
+  width: 300px; /* Ancho de tu formulario */
+}
+
+.form-input {
+  background-color: #eaeaea;
+  border: none;
+  border-radius: 20px; /* Bordes redondeados de tu imagen */
+  padding: 12px 20px;
+  color: #333;
+  font-size: 1.1em;
+}
+
+.form-input::placeholder {
+  color: #999;
+}
+
+.form-input:focus {
+  outline: 2px solid var(--blossom-purple);
+}
+
+/* --- Botón de Iniciar Sesión --- */
+.submit-btn {
+  background-color: var(--blossom-purple);
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 12px 0;
+  cursor: pointer;
+  font-size: 1.1em;
+  font-weight: bold;
+  text-transform: uppercase;
+  margin-top: 15px;
+  transition: background-color 0.3s ease;
+}
+
+.submit-btn:hover {
+  background-color: #551db8; /* Un morado un poco más oscuro al pasar el mouse */
+}
+
+/* --- Apartado de Registro --- */
+.register-link-container {
+    margin-top: 20px;
+    text-align: center;
+    font-family: 'Quicksand', sans-serif; /* Aseguramos la tipografía */
+}
+
+.register-link-container p {
+    color: #555; /* Un gris suave para el texto normal */
+    font-size: 0.95em;
+}
+
+.register-link {
+    color: var(--blossom-purple); /* Tu morado #6d2bce */
+    font-weight: bold;
+    text-decoration: none; /* Quitamos el subrayado feo */
+    transition: color 0.3s ease, text-decoration 0.3s ease;
+}
+
+.register-link:hover {
+    text-decoration: underline; /* Solo se subraya al pasar el mouse */
+    color: #551db8; /* Un tono un poco más oscuro al hacer hover */
+}
+
+/* --- Contenedor de Registro --- */
+.signup-container {
+    text-align: center;
+    padding: 20px;
+    font-family: 'Quicksand', sans-serif;
+}
+
+.signup-content {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 50px;
+    margin-bottom: 30px;
+}
+
+.inputs-column {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* --- Estilo de las Tarjetas de Rol --- */
+.role-selection-column {
+    text-align: center;
+}
+
+.role-label {
+    color: var(--blossom-purple);
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.roles-container {
+    display: flex;
+    gap: 20px;
+}
+
+.role-card {
+    cursor: pointer;
+}
+
+/* Escondemos el circulito del radio button */
+.role-card input[type="radio"] {
+    display: none;
+}
+
+/* Diseño de la tarjeta (Avatar + Texto) */
+.role-design {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 2px solid #ccc;
+    border-radius: 25px;
+    padding: 10px;
+    transition: all 0.3s ease;
+}
+
+.role-design img {
+    width: 100px;
+    height: auto;
+}
+
+.role-design span {
+    margin-top: 5px;
+    color: #999;
+    font-weight: bold;
+}
+
+/* CUANDO ESTÁ SELECCIONADO (La magia) */
+.role-card input[type="radio"]:checked + .role-design {
+    border-color: var(--blossom-purple);
+    box-shadow: 0 0 10px rgba(109, 43, 206, 0.2);
+}
+
+.role-card input[type="radio"]:checked + .role-design span {
+    color: var(--blossom-purple);
+}
+
+/* Botón más ancho para el registro */
+.submit-btn-wide {
+    background-color: var(--blossom-purple);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    padding: 15px 60px;
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: bold;
+    text-transform: uppercase;
+    transition: transform 0.2s;
+}
+
+.submit-btn-wide:hover {
+    transform: scale(1.05);
+}
+
+
+/* --- Dashboard Contenedor Principal --- */
+.dashboard-container {
+    max-width: 1000px;
+    margin: 30px auto;
+    padding: 0 20px;
+    font-family: 'Quicksand', sans-serif;
+}
+
+/* --- Estilos del Header (Avatar del usuario) --- */
+.user-avatar-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.avatar-circle-sm {
+    width: 35px;
+    height: 35px;
+    background-color: #c091ff; /* Color morado claro del avatar */
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+.user-name-header {
+    color: #333;
+    font-weight: 500;
+}
+
+/* --- Banner de Bienvenida (Con Degradado) --- */
+.welcome-banner {
+    background: linear-gradient(135deg, #6d2bce 0%, #3498db 100%); /* TU MORADO -> AZUL */
+    border-radius: 30px;
+    color: white;
+    padding: 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+}
+
+.banner-text h1 {
+    font-size: 2.5em;
+    margin: 0;
+    font-weight: 700;
+}
+
+.banner-text p {
+    font-size: 1.2em;
+    margin: 10px 0 20px 0;
+    opacity: 0.9;
+}
+
+.level-badge {
+    display: inline-block;
+    background-color: rgba(255, 255, 255, 0.2); /* Fondo semi-transparente */
+    color: white;
+    padding: 10px 25px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 1.1em;
+    text-transform: capitalize; /* Convierte 'intermedio' a 'Intermedio' */
+}
+
+.avatar-circle-lg {
+    width: 100px;
+    height: 100px;
+    background-color: #c091ff;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-weight: bold;
+    font-size: 3em;
+    border: 4px solid white; /* Borde blanco alrededor */
+}
+
+/* --- Grid de Navegación --- */
+.navigation-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 columnas iguales */
+    gap: 20px;
+    margin-bottom: 40px;
+}
+
+/* --- Botones de Navegación --- */
+.nav-button {
+    background-color: #e0e0e0; /* Color gris de tus botones */
+    color: #333;
+    text-decoration: none;
+    border-radius: 20px;
+    padding: 20px;
+    text-align: center;
+    font-size: 1.1em;
+    font-weight: 500;
+    border: 3px solid transparent; /* Borde invisible por defecto */
+    transition: all 0.3s ease; /* Transición suave */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 60px; /* Asegura altura mínima */
+}
+
+/* LA MAGIA DEL HOVER (Borde Morado) */
+.nav-button:hover {
+    border-color: var(--blossom-purple); /* Tu morado #6d2bce */
+    background-color: #e8e8e8; /* Un gris un poco más claro al pasar el mouse */
+    transform: translateY(-3px); /* Pequeño levantamiento */
+}
+
+/* Estilo para el botón placeholder de Perfil */
+.placeholder-button {
+    cursor: default;
+    color: #999; /* Texto grisado */
+}
+.placeholder-button:hover {
+    border-color: transparent; /* No morado en hover */
+    background-color: #e0e0e0; /* No cambia de color */
+    transform: none; /* No se mueve */
+}
+
+/* Botón de Cerrar Sesión (Logout) */
+.logout-container {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.logout-link {
+    color: #777;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+.logout-link:hover {
+    color: var(--blossom-purple);
+    text-decoration: underline;
+}
+
+
+/* --- Contenedor del Examen --- */
+.examen-container {
+    max-width: 900px;
+    margin: 40px auto;
+    font-family: 'Quicksand', sans-serif;
+    padding: 0 20px;
+}
+
+.pregunta-card {
+    margin-bottom: 50px;
+}
+
+/* --- Encabezado de la Pregunta --- */
+.pregunta-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.numero-circulo {
+    background-color: var(--blossom-purple);
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 1.5em;
+    font-weight: bold;
+    box-shadow: 0 4px 10px rgba(109, 43, 206, 0.3);
+    flex-shrink: 0;
+}
+
+.pregunta-texto {
+    background-color: #e0e0e0;
+    padding: 15px 30px;
+    border-radius: 30px;
+    flex-grow: 1;
+}
+
+.pregunta-texto p {
+    margin: 0;
+    font-weight: 500;
+    color: #333;
+}
+
+/* --- Estilo de las Respuestas --- */
+.opciones-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding-left: 80px; /* Alineado con el inicio del texto de la pregunta */
+}
+
+.opcion-item {
+    cursor: pointer;
+    width: 100%;
+    max-width: 400px;
+}
+
+.opcion-item input[type="radio"] {
+    display: none; /* Ocultamos el radio original */
+}
+
+.opcion-diseno {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    border: 2px solid var(--blossom-purple);
+    border-radius: 25px;
+    padding: 12px 25px;
+    transition: all 0.3s ease;
+    background-color: white;
+}
+
+.punto-indicador {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #d1d1d1; /* Gris por defecto */
+    display: inline-block;
+}
+
+.texto-respuesta {
+    color: #333;
+    font-weight: 500;
+}
+
+/* --- ESTADO SELECCIONADO (Morado) --- */
+.opcion-item input[type="radio"]:checked + .opcion-diseno {
+    background-color: var(--blossom-purple);
+}
+
+.opcion-item input[type="radio"]:checked + .opcion-diseno .texto-respuesta {
+    color: white;
+}
+
+.opcion-item input[type="radio"]:checked + .opcion-diseno .punto-indicador {
+    background-color: white; /* El punto se vuelve blanco al seleccionar */
+}
+
+/* --- Efecto Hover --- */
+.opcion-diseno:hover {
+    background-color: #f8f4ff;
+    transform: translateX(5px);
+}
+
+
+/* --- Pantalla de Resultados --- */
+.resultado-container {
+    max-width: 600px;
+    margin: 50px auto;
+    text-align: center;
+    font-family: 'Quicksand', sans-serif;
+}
+
+.resultado-titulo {
+    color: var(--blossom-purple);
+    font-size: 2.5em;
+    font-weight: bold;
+    margin-bottom: 30px;
+}
+
+/* La tarjeta con el borde morado solicitado */
+.resultado-card {
+    border: 3px solid var(--blossom-purple);
+    border-radius: 30px;
+    padding: 40px;
+    background-color: white;
+    box-shadow: 0 10px 30px rgba(109, 43, 206, 0.1);
+    margin-bottom: 30px;
+}
+
+.stats-row {
+    font-size: 1.8em;
+    margin-bottom: 20px;
+}
+
+.stat-label {
+    color: #444;
+    font-weight: bold;
+}
+
+.stat-value {
+    color: #3498db; /* Mantenemos el azul solo para el número para que resalte */
+    font-weight: bold;
+}
+
+.aciertos-text {
+    font-size: 1.2em;
+    color: #555;
+    margin-bottom: 30px;
+}
+
+.nivel-section p {
+    font-size: 1.1em;
+    color: #777;
+    margin-bottom: 10px;
+}
+
+.nivel-badge-resultado {
+    font-size: 2.5em;
+    font-weight: 800;
+    color: #2ecc71; /* Verde para el nivel como en tu imagen */
+    letter-spacing: 2px;
+}
+
+.footer-mensaje {
+    color: #333;
+    margin-bottom: 40px;
+}
+
+/* --- Botones de la parte inferior --- */
+.resultado-actions {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.btn-resultado-primario, .btn-resultado-secundario {
+    padding: 12px 25px;
+    border-radius: 20px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.btn-resultado-primario {
+    background-color: var(--blossom-purple);
+    color: white;
+}
+
+.btn-resultado-secundario {
+    background-color: #8e44ad; /* Un morado ligeramente diferente o igual */
+    color: white;
+    opacity: 0.9;
+}
+
+.btn-resultado-primario:hover, .btn-resultado-secundario:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(109, 43, 206, 0.3);
+    opacity: 1;
+}
+
+
+/* --- Ruta de Aprendizaje --- */
+.ruta-container {
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 0 20px;
+    font-family: 'Quicksand', sans-serif;
+}
+
+.ruta-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 40px;
+}
+
+/* Botón "Inicio" morado con borde */
+.btn-inicio-small {
+    border: 2px solid var(--blossom-purple);
+    color: var(--blossom-purple);
+    padding: 5px 25px;
+    border-radius: 15px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: all 0.3s;
+}
+
+.btn-inicio-small:hover {
+    background-color: var(--blossom-purple);
+    color: white;
+}
+
+/* Tarjetas de Módulo */
+.modulo-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: 2px solid var(--blossom-purple);
+    border-radius: 20px;
+    padding: 20px 30px;
+    margin-bottom: 25px;
+    background-color: white;
+}
+
+.modulo-info {
+    flex-grow: 1;
+    margin-right: 40px;
+}
+
+.modulo-info h3 {
+    margin: 0 0 15px 0;
+    color: #444;
+    font-size: 1.4em;
+}
+
+/* --- Barras de Progreso --- */
+.progress-bar-container {
+    width: 100%;
+    height: 35px;
+    background-color: #f0f0f0;
+    border-radius: 20px;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid #ddd;
+}
+
+.progress-fill {
+    width: var(--progreso);
+    height: 100%;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: width 0.5s ease-in-out;
+}
+
+.progress-fill span {
+    font-weight: bold;
+    font-size: 0.9em;
+    color: #333;
+}
+
+/* --- Botones de Módulo (Repasar/Continuar/Iniciar) --- */
+.btn-modulo {
+    background-color: var(--blossom-purple);
+    color: white;
+    padding: 10px 30px;
+    border-radius: 15px;
+    text-decoration: none;
+    font-weight: bold;
+    display: inline-block;
+    min-width: 100px;
+    text-align: center;
+    transition: transform 0.2s;
+}
+
+.btn-modulo:hover {
+    transform: scale(1.05);
+    background-color: #551db8;
+}
+/* Estado: Completado (Verde) */
+.status-completo {
+    background-color: #00ff00;
+    border: 2px solid #00ff00;
+}
+
+/* Estado: En proceso (Amarillo) */
+.status-proceso {
+    background-color: #ffff00;
+    border: 2px solid #ffff00;
+}
+
+/* Estado: No iniciado (Rojo) */
+.status-inicio {
+    background-color: transparent;
+    border: 2px solid #ff0000;
+}
+
+
+/* --- Contenedor de Práctica --- */
+.practica-container {
+    max-width: 1100px;
+    margin: 30px auto;
+    padding: 0 20px;
+}
+
+.practica-content-card {
+    border: 2px solid var(--blossom-purple);
+    border-radius: 40px;
+    padding: 30px;
+    background-color: white;
+}
+
+.practica-header-row {
+    display: flex;
+    justify-content: space-between; /* Empuja los títulos a la izquierda y el botón a la derecha */
+    align-items: flex-start;       /* Alinea el botón con la parte superior del título */
+    margin-bottom: 20px;           /* Espacio antes del recuadro de temas */
+    width: 100%;
+}
+
+.btn-inicio-small {
+    border: 2px solid var(--blossom-purple);
+    color: var(--blossom-purple);
+    padding: 5px 25px;
+    border-radius: 15px;
+    text-decoration: none;
+    font-weight: bold;
+    font-family: 'Quicksand', sans-serif;
+    transition: all 0.3s;
+    margin-top: 10px; /* Ajuste fino para que se vea centrado con el H1 */
+}
+
+.btn-inicio-small:hover {
+    background-color: var(--blossom-purple);
+    color: white;
+}
+
+/* --- Selector de Temas (Triángulo) --- */
+.temas-selector-container {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.temas-label {
+    font-weight: bold;
+    font-size: 1.5em;
+}
+
+.custom-select-wrapper {
+    position: relative;
+    flex-grow: 1;
+}
+
+#temas-select {
+    width: 100%;
+    background-color: black;
+    color: white;
+    border: none;
+    border-radius: 30px;
+    padding: 12px 25px;
+    font-size: 1.1em;
+    appearance: none; /* Quita la flecha por defecto */
+    cursor: pointer;
+}
+
+.select-arrow {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0; 
+    height: 0; 
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 12px solid white; /* El triángulo */
+    pointer-events: none;
+}
+
+/* --- Grid de Ejercicios --- */
+.ejercicios-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px;
+}
+
+.ejercicio-card {
+    background-color: #e0e0e0;
+    border-radius: 30px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.ejercicio-header {
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.ejercicio-numero {
+    color: var(--blossom-purple);
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+.input-respuesta {
+    width: 90%;
+    border: 2px solid var(--blossom-purple);
+    border-radius: 25px;
+    padding: 15px;
+    text-align: center;
+    margin-bottom: 15px;
+    font-family: inherit;
+}
+
+/* Botón Guardar (Se vuelve verde al clicar como feedback) */
+.btn-guardar-local {
+    background-color: var(--blossom-purple);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 30px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s;
+}
+
+.btn-guardar-local.saved {
+    background-color: #2ecc71;
+    content: "Guardado";
+}
+
+/* Contenedor del botón Enviar al final */
+.submit-practica-container {
+    grid-column: span 2;
+    text-align: center;
+    margin-top: 20px;
+}
+
+
+/* --- Contenedor de Progreso --- */
+.progreso-container {
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.progreso-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 30px;
+}
+
+/* Grid de Estadísticas */
+.stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Dos columnas iguales */
+    gap: 30px;
+}
+
+.stat-card {
+    background-color: white;
+    border: 2px solid var(--blossom-purple);
+    border-radius: 35px;
+    padding: 25px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 150px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.stat-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-label {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #000;
+    margin-bottom: 10px;
+}
+
+.stat-value {
+    font-size: 3.5em; /* Números grandes como en tu diseño */
+    margin: 0;
+    font-weight: bold;
+}
+
+.purple-text {
+    color: var(--blossom-purple);
+}
+
+/* Iconos de las tarjetas */
+.stat-icon {
+    width: 90px;
+    height: auto;
+    object-fit: contain;
+}
+
+/* ========== TUTOR PANTALLA ========== */
+.blossom-title {
+    text-align: center;
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 700;
+    font-size: 3rem;
+    color: #2c3e50;        /* Ajusta según tu paleta de colores */
+    margin: 20px 0 10px;
+    letter-spacing: 2px;
+}
+
+/* ========== TUTOR INTERACTION ========== */
+
+/* Contenedor principal */
+.tutor-interaction-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 30px;
+    width: 95%;
+    max-width: 1200px;
+    margin: 20px auto;
+}
+
+/* Columna del Chat */
+.chat-main-column {
+    flex: 2;
+    border: 2px solid var(--blossom-purple);
+    border-radius: 40px;
+    padding: 25px;
+    background-color: #fff;
+    min-height: 450px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+/* Área de mensajes */
+.chat-bubble-area {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding-right: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;           /* Espacio entre mensajes */
+}
+
+/* Estilos para mensajes del tutor (IA) */
+.chat-message-ai {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.chat-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.chat-message-ai .message-text {
+    background-color: #f1f0f0;
+    padding: 12px 18px;
+    border-radius: 20px 20px 20px 5px;
+    max-width: 70%;
+    font-family: 'Quicksand', sans-serif;
+    color: #333;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+/* Estilos para mensajes del usuario (nuevo) */
+.chat-message-user {
+    display: flex;
+    justify-content: flex-end;   /* Alinea a la derecha */
+}
+
+.chat-message-user .message-text {
+    background-color: var(--blossom-purple);    /* Color distintivo para usuario */
+    color: white;
+    padding: 12px 18px;
+    border-radius: 20px 20px 5px 20px;
+    max-width: 70%;
+    font-family: 'Quicksand', sans-serif;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Columna del Robot */
+.robot-side-column {
+    flex: 1;
+    max-width: 350px;
+    display: flex;
+    justify-content: center;
+}
+
+.robot-frame {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.robot-img {
+    width: 100%;
+    height: auto;
+    max-height: 450px;
+    object-fit: contain;
+    transition: opacity 0.3s ease-in-out;
+}
+
+/* Fila de input */
+.chat-input-row {
+    background-color: #f0f0f0;
+    border-radius: 30px;
+    display: flex;
+    align-items: center;
+    padding: 5px 20px;
+    margin-top: 15px;
+}
+
+.input-escribir {
+    flex-grow: 1;
+    border: none;
+    background: transparent;
+    padding: 12px;
+    font-family: 'Quicksand', sans-serif;
+    outline: none;
+}
+
+.btn-enviar-chat {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+}
+
+.btn-enviar-chat img {
+    width: 24px;
+    height: 24px;
+}
+
+.tutor-header-row {
+    display: flex;
+    justify-content: space-between; /* Títulos a la izquierda, botón a la derecha */
+    align-items: flex-start;        /* Alineación superior */
+    margin: 20px auto 30px;         /* Centra el bloque y da espacio abajo */
+    width: 95%;
+    max-width: 1200px;
+}
+
+.tutor-titles {
+    text-align: left;              /* Texto alineado a la izquierda */
+}
+
+.welcome-title {
+    font-size: 2.5rem;             /* Un poco más grande para que destaque */
+    color: var(--blossom-purple);   /* Morado Blossom */
+    margin-bottom: 5px;
+    font-weight: 700;
+}
+
+.tutor-titles p {
+    font-size: 1.1rem;
+    color: #666;
+    margin: 0;
+}
+
+/* Boton inicio */
+.btn-inicio-small {
+    display: inline-block;
+    padding: 8px 30px;
+    border: 2px solid var(--blossom-purple);   /* Borde morado */
+    border-radius: 20px;          /* Forma de píldora */
+    color: #8e44ad;
+    text-decoration: none;
+    font-weight: bold;
+    font-family: 'Quicksand', sans-serif;
+    transition: all 0.3s ease;
+    margin-top: 10px;             /* Ajuste para que baje un poco con el H1 */
+}
+
+.btn-inicio-small:hover {
+    background-color: var(--blossom-purple);
+    color: white;
+}
