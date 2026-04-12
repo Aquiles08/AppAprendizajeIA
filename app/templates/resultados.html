@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Resultados - Blossom</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .status-badge {
+            padding: 15px;
+            border-radius: 20px;
+            margin: 20px 0;
+        }
+        .status-badge.avanzar {
+            background-color: #d4edda;
+        }
+        .status-badge.reforzar {
+            background-color: #fff3cd;
+        }
+        .status-badge.mantener {
+            background-color: #e2e3e5;
+        }
+    </style>
+</head>
+<body>
+    <header class="main-header">
+        <div class="logo"><img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo"></div>
+    </header>
+
+    <main class="practica-container">
+        <div class="practica-content-card" style="text-align: center;">
+            <h1 class="welcome-title" style="color: var(--blossom-purple);">¡Sesión Finalizada!</h1>
+            
+            <div class="ejercicios-grid" style="grid-template-columns: 1fr; margin-top: 20px;">
+                <div class="ejercicio-card">
+                    <h2 style="color: #333;">Resumen de desempeño</h2>
+                    <p style="font-size: 1.2em;">Lograste <strong>{{ progreso.aciertos }}</strong> de <strong>{{ progreso.ejercicios_realizados }}</strong> aciertos.</p>
+                    
+                    <div class="status-badge {% if decision == 'AVANZAR' %}avanzar{% elif decision == 'REFORZAR' %}reforzar{% else %}mantener{% endif %}">
+                        {% if decision == 'AVANZAR' %}
+                            <p style="color: #155724;"><strong>🚀 ¡Excelente!</strong> Has dominado este tema. La IA te ha habilitado el siguiente nivel.</p>
+                        {% elif decision == 'REFORZAR' %}
+                            <p style="color: #856404;"><strong>💪 ¡No te rindas!</strong> Necesitamos practicar un poco más los básicos para fortalecer tus bases.</p>
+                        {% else %}
+                            <p style="color: #383d41;"><strong>⚖️ ¡Buen ritmo!</strong> Sigue así para alcanzar la maestría en este tema.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 30px; display: flex; gap: 20px; justify-content: center;">
+                <a href="{{ url_for('usuario.practica') }}" class="btn-guardar-local" style="text-decoration: none; padding: 12px 30px;">Repetir Práctica</a>
+                <a href="{{ url_for('usuario.dashboard') }}" class="btn-inicio-small" style="padding: 10px 40px;">Ir al Inicio</a>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

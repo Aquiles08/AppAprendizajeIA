@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Mi Progreso - Plataforma IA</title>
+    <title>Mi Progreso - Blossom</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
@@ -21,47 +21,75 @@
     </header>
 
     <main class="progreso-container">
-    <div class="progreso-header-row">
-        <div class="progreso-titles">
-            <h1 class="welcome-title">Progreso</h1>
-            <p>Análisis detallado de tu rendimiento y evolución</p>
-        </div>
-        <a href="{{ url_for('usuario.dashboard') }}" class="btn-inicio-small">Inicio</a>
-    </div>
-
-    <section class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-content">
-                <span class="stat-label">Nivel Actual</span>
-                <h2 class="stat-value purple-text">{{ stats.nivel }}</h2>
+        <div class="progreso-header-row">
+            <div class="progreso-titles">
+                <h1 class="welcome-title">Mi Progreso</h1>
+                <p>Análisis detallado de tu rendimiento y evolución</p>
             </div>
-            <img src="{{ url_for('static', filename='img/principiante.png') }}" alt="Nivel" class="stat-icon">
+            <a href="{{ url_for('usuario.dashboard') }}" class="btn-inicio-small">Volver al Inicio</a>
         </div>
 
-        <div class="stat-card">
-            <div class="stat-content">
-                <span class="stat-label">Racha Actual</span>
-                <h2 class="stat-value purple-text">{{ stats.racha }}</h2>
+        <section class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-content">
+                    <span class="stat-label">Nivel Actual</span>
+                    <h2 class="stat-value purple-text">{{ stats.nivel }}</h2>
+                </div>
+                <img src="{{ url_for('static', filename='img/principiante.png') }}" alt="Nivel" class="stat-icon">
             </div>
-            <img src="{{ url_for('static', filename='img/racha.png') }}" alt="Racha" class="stat-icon">
-        </div>
 
-        <div class="stat-card">
-            <div class="stat-content">
-                <span class="stat-label">Ejercicios resueltos</span>
-                <h2 class="stat-value purple-text">{{ stats.ejercicios_total }}</h2>
+            <div class="stat-card">
+                <div class="stat-content">
+                    <span class="stat-label">Efectividad</span>
+                    <h2 class="stat-value purple-text">
+                        {% if stats.total_ejercicios > 0 %}
+                            {{ ((stats.total_aciertos / stats.total_ejercicios) * 100) | round(0) }}%
+                        {% else %}
+                            0%
+                        {% endif %}
+                    </h2>
+                </div>
+                <img src="{{ url_for('static', filename='img/racha.png') }}" alt="Efectividad" class="stat-icon">
             </div>
-            <img src="{{ url_for('static', filename='img/ejercicios.png') }}" alt="Ejercicios" class="stat-icon">
-        </div>
 
-        <div class="stat-card">
-            <div class="stat-content">
-                <span class="stat-label">Temas completados</span>
-                <h2 class="stat-value purple-text">{{ stats.temas_total }}</h2>
+            <div class="stat-card">
+                <div class="stat-content">
+                    <span class="stat-label">Ejercicios resueltos</span>
+                    <h2 class="stat-value purple-text">{{ stats.total_ejercicios }}</h2>
+                </div>
+                <img src="{{ url_for('static', filename='img/ejercicios.png') }}" alt="Ejercicios" class="stat-icon">
             </div>
-            <img src="{{ url_for('static', filename='img/temas.png') }}" alt="Temas" class="stat-icon">
-        </div>
-    </section>
-</main>>
+
+            <div class="stat-card">
+                <div class="stat-content">
+                    <span class="stat-label">Aciertos Totales</span>
+                    <h2 class="stat-value purple-text">{{ stats.total_aciertos }}</h2>
+                </div>
+                <img src="{{ url_for('static', filename='img/temas.png') }}" alt="Aciertos" class="stat-icon">
+            </div>
+        </section>
+
+        <section class="historial-section">
+            <h3 class="section-subtitle">Actividad Reciente</h3>
+            <div class="historial-lista">
+                {% if stats.historial %}
+                    {% for registro in stats.historial %}
+                    <div class="historial-item">
+                        <div class="historial-info">
+                            <strong>{{ registro.tema }}</strong>
+                            <span>{{ registro.fecha.strftime('%d %b, %H:%M') }}</span>
+                        </div>
+                        <div class="historial-badge">
+                            {{ registro.aciertos }}/{{ registro.ejercicios_realizados }} pts
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="no-data">Aún no has realizado ninguna práctica. ¡Comienza hoy!</p>
+                {% endif %}
+            </div>
+        </section>
+    </main>
+
 </body>
 </html>

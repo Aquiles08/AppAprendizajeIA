@@ -29,6 +29,24 @@
             <a href="{{ url_for('usuario.dashboard') }}" class="btn-inicio-small">Inicio</a>
         </div>
 
+        <div class="ia-feedback-container">
+            {% if alerta %}
+                <div class="alerta-refuerzo">
+                    <img src="{{ url_for('static', filename='img/tutor_alert.png') }}" alt="Aviso">
+                    <p><strong>¡Atención!</strong> Notamos que algunos temas te están costando. Te sugerimos repasar con el Tutor IA.</p>
+                </div>
+            {% else %}
+                <div class="alerta-exito">
+                    <p>🚀 ¡Vas por excelente camino! Tu próximo reto es: <strong>{{ ruta.proximo_reto }}</strong></p>
+                </div>
+            {% endif %}
+    
+            <div class="practica-config-info">
+                <span>Práctica sugerida: <strong>{{ ruta.config_practica.cantidad }}</strong> ejercicios</span>
+                <span>Dificultad: <span class="badge-{{ ruta.config_practica.dificultad }}">{{ ruta.config_practica.dificultad }}</span></span>
+            </div>
+        </div>
+
         <section class="modulos-lista">
             {% for modulo in modulos %}
             <div class="modulo-card">

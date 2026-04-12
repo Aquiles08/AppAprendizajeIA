@@ -1,23 +1,23 @@
+# app/__init__.py
 from flask import Flask
-from config.config import Config
-from config.database import db
+from config.database import db, init_db # Importa ambos
 from flask_bcrypt import Bcrypt
-from app.models.curso import Curso  # <--- IMPORTA ESTO PRIMERO
-from app.models.usuario import Usuario
 
-# Inicializamos herramientas fuera para evitar errores circulares
 bcrypt = Bcrypt()
 
 def create_app():
     app = Flask(__name__)
-    app.config.from_object(Config)
-
-    # Conectamos la DB y Bcrypt a la app
-    db.init_app(app)
+    
+    app.config['SECRET_KEY'] = 'una_llave_super_secreta_123'
+    # En lugar de cargar Config (que puede tener datos viejos), 
+    # usamos tu función de database.py
+    init_db(app) 
     bcrypt.init_app(app)
 
-    # REGISTRO DE RUTAS
-    from app.controllers.usuario_controller import usuario_bp
-    app.register_blueprint(usuario_bp)
+    with app.app_context():
+        from app.models.usuario import Usuario
+        from app.models.progresoUsuario import ProgresoUsuario
+        from app.controllers.usuario_controller import usuario_bp
+        app.register_blueprint(usuario_bp)
 
     return app
