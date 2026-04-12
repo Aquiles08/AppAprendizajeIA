@@ -131,6 +131,8 @@ def procesar_examen():
     for i in range(1, 6):
         llave = f"p{i}"
         resp_usuario = request.form.get(llave)
+        if not resp_usuario:
+            resp_usuario = "No respondida"
         resp_correcta = correctas[llave]["ans"]
         es_correcta = 1 if resp_usuario == resp_correcta else 0
         if es_correcta: aciertos += 1
@@ -223,16 +225,18 @@ def ruta():
 # --- Práctica ---
 @usuario_bp.route("/practica")
 def practica():
+    
+    tema_practicar = "Ecuaciones de Primer Grado" # Esto lo podríamos sacar del Motor IA en el futuro, por ahora lo dejamos fijo para que veas cómo se conecta todo
     # 1. El motor de IA nos da la configuración
     motor = MotorIA()
     config = motor.generar_configuracion_ejercicios('Principiante', 'MANTENER')
 
     # 2. El generador crea los problemas matemáticos reales
     generador = GeneradorEjercicios()
-    ejercicios_para_hoy = generador.crear_sesion(config)
+    ejercicios = generador.crear_sesion(config)
 
     # 3. Se los mandamos a la pantalla de práctica
-    return render_template("practica.html", ejercicios=ejercicios_para_hoy)
+    return render_template("practica.html", ejercicios=ejercicios, tema_nombre=tema_practicar)
 # --- Practica: Procesar --- 
 @usuario_bp.route("/procesar_practica", methods=["POST"])
 def procesar_practica():
@@ -253,10 +257,12 @@ def finalizar_practica():
     if not u_id:
         return jsonify({"status": "error", "message": "Usuario no autenticado"}), 401
     
+    tema_recibido = data.get('tema', 'General')  # Por ahora lo dejamos como "General", pero en el futuro lo enviaremos desde el JS para saber qué tema se practicó
+    
     # El Service se encarga de registrar el progreso y también de manejar la lógica de subida de nivel
     UsuarioService.registrar_progreso(
         u_id=u_id,
-        tema='Operaciones Básicas',
+        tema=tema_recibido,
         total=data.get('total'),
         aciertos=data.get('aciertos'),
         dificultad='Normal'

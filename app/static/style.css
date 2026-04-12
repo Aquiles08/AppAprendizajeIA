@@ -1239,3 +1239,47 @@ body {
     background-color: var(--blossom-purple);
     color: white;
 }
+
+/* Estilo para el botón de validar de cada ejercicio */
+.btn-validar {
+    background-color: var(--blossom-purple); /* Tu morado principal */
+    color: white;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 8px;
+    font-family: 'Quicksand', sans-serif;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    margin-left: 10px;
+}
+
+.btn-validar:hover {
+    background-color: #8e44ad; /* Un morado más oscuro al pasar el mouse */
+    transform: scale(1.05);
+}
+
+.btn-validar:disabled {
+    background-color: #b5b5b5; /* Gris cuando ya contestó bien */
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Estilo para cuando la respuesta es correcta (clase .saved que pusimos en el JS) */
+.btn-validar.saved {
+    background-color: #2ecc71; /* Verde éxito */
+    color: white;
+}
+
+/* Ajuste del input para que no se pegue al botón */
+.ejercicio-item input {
+    padding: 10px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+.ejercicio-item input:focus {
+    border-color: #8c52ff;
+}

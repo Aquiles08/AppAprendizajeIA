@@ -57,8 +57,9 @@
     </main>
 
     <script>
-        // Usamos el parse que te funcionó para evitar errores de sintaxis en el editor
-        const listaEjercicios = JSON.parse('{{ ejercicios | tojson | safe }}');
+    // Pasamos el tema y convertimos la lista de ejercicios de Python a JSON para JS
+    const TEMA_ACTUAL = "{{ tema_nombre }}";
+    const EJERCICIOS_DATA = JSON.parse('{{ ejercicios | tojson | safe }}');
     </script>
     
     <script src="{{ url_for('static', filename='js/practica.js') }}"></script>
