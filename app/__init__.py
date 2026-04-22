@@ -17,6 +17,10 @@ def create_app():
     with app.app_context():
         from app.models.usuario import Usuario
         from app.models.progresoUsuario import ProgresoUsuario
+        from app.models.tema import Tema
+        from app.models.curso import Curso
+        from app.models.respuesta import Respuesta
+        from app.models.historialTutor import HistorialTutor    
         from app.controllers.usuario_controller import usuario_bp
         app.register_blueprint(usuario_bp)
 

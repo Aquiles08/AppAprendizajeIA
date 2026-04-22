@@ -1,19 +1,26 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash, jsonify 
-from app import db # Importamos la instancia de SQLAlchemy para hacer consultas a la DB
+from config.database import db # Importamos la instancia de SQLAlchemy para hacer consultas a la DB
 from app.utils import bcrypt # Importamos bcrypt para verificar contraseñas
+from google import genai # Importamos el cliente de Gemini para generar ejercicios personalizados
+import os
 
 #Modelos
+from app.models.tema import Tema # Importamos el modelo Tema para hacer consultas a la tabla de temas
 from app.models.usuario import Usuario # Importamos el modelo Usuario para hacer consultas a la tabla de usuarios
 from app.models.curso import Curso # Importamos el modelo Curso para hacer consultas a la tabla de cursos
 from app.models.respuesta import Respuesta # Importamos el modelo Respuesta para guardar las respuestas del examen
 from app.models.progresoUsuario import ProgresoUsuario # Importamos el modelo ProgresoUsuario para guardar el progreso de los usuarios
+from app.models.historialTutor import HistorialTutor # Importamos el modelo HistorialTutor para guardar el historial de conversaciones con el tutor IA
 
 #Servicios y lógica
+from app.services.ia_service import AIService # Importamos el servicio de IA para generar ejercicios personalizados
 from app.services.usuario_service import UsuarioService # Importamos el servicio de usuario para manejar la lógica de negocio relacionada con los usuarios
 from app.logic.motor_ia import MotorIA # Importamos el motor de IA para tomar decisiones en la ruta de práctica
 from app.logic.generador import GeneradorEjercicios # Importamos el generador de ejercicios para crear problemas matemáticos personalizados
 
+ia_service = AIService() # Creamos una instancia del servicio de IA para usarlo en las rutas
 usuario_bp = Blueprint('usuario', __name__)
+client = genai.Client(api_key=os.getenv('GEMINI_API_KEY')) # Creamos el cliente de Gemini
 
 # --- LOGIN --- 
 @usuario_bp.route("/", methods=["GET", "POST"])
@@ -102,8 +109,15 @@ def dashboard():
     
     # Objetivo: Mostrar estadísticas reales del usuario en el dashboard 
     user = Usuario.query.get(u_id)  
-    stats = UsuarioService.obtener_estadisticas_globales(u_id)
-    return render_template("dashboard.html", stats=stats, user=user)
+    historial = ProgresoUsuario.query.filter_by(usuario_id=u_id).order_by(ProgresoUsuario.fecha.desc()).limit(5).all()
+    
+    total_ejercicios = sum(p.ejercicios_realizados for p in historial)
+    total_aciertos = sum(p.aciertos for p in historial)
+    
+    return render_template("dashboard.html", user=user, 
+                           historial=historial, 
+                           total_ejercicios=total_ejercicios, 
+                           total_aciertos=total_aciertos)
 
 #--- Examen ---
 @usuario_bp.route("/examen")
@@ -225,30 +239,75 @@ def ruta():
 # --- Práctica ---
 @usuario_bp.route("/practica")
 def practica():
+    u_id = session.get('usuario_id')
+    if not u_id:
+        return redirect(url_for('usuario.login'))
+
+    # 1. Obtenemos el nivel real del usuario para que la IA se adapte
+    user = Usuario.query.get(u_id)
+    tema_practicar = "Ecuaciones de Primer Grado" 
     
-    tema_practicar = "Ecuaciones de Primer Grado" # Esto lo podríamos sacar del Motor IA en el futuro, por ahora lo dejamos fijo para que veas cómo se conecta todo
-    # 1. El motor de IA nos da la configuración
-    motor = MotorIA()
-    config = motor.generar_configuracion_ejercicios('Principiante', 'MANTENER')
+    # Pedimos 3 ejercicios con la dificultad que tiene el usuario en la DB
+    ejercicios = ia_service.generar_ejercicios_ia(
+        tema=tema_practicar, 
+        dificultad=user.nivel, 
+        cantidad=3
+    )
 
-    # 2. El generador crea los problemas matemáticos reales
-    generador = GeneradorEjercicios()
-    ejercicios = generador.crear_sesion(config)
+    # Si la IA falla, usamos un respaldo para que no truene la página
+    if not ejercicios:
+        ejercicios = [{
+            "pregunta": "2x = 10", 
+            "solucion": "5", 
+            "explicacion": "Divide 10 entre 2"
+        }]
 
-    # 3. Se los mandamos a la pantalla de práctica
+    # 3. Mandamos los ejercicios reales de Gemini a la pantalla
     return render_template("practica.html", ejercicios=ejercicios, tema_nombre=tema_practicar)
-# --- Practica: Procesar --- 
+# --- Practica: Procesar (MODIFICADA PARA VALIDACIÓN DINÁMICA) --- 
 @usuario_bp.route("/procesar_practica", methods=["POST"])
 def procesar_practica():
+    u_id = session.get('usuario_id')
+    if not u_id:
+        return redirect(url_for('usuario.login'))
 
-    respuesta = request.form.get("respuesta_practica")
-    
-    if respuesta == "12":
-        mensaje = "¡Correcto! Eres un crack de las mates."
-    else:
-        mensaje = f"Casi, pero {respuesta} no es la respuesta. ¡Inténtalo de nuevo!"
-    
-    return render_template("resultado_practica.html", mensaje=mensaje) 
+    resultados_detallados = []
+    aciertos = 0
+    total_ejercicios = 3 # La cantidad que definimos en la ruta 'practica'
+
+    for i in range(1, total_ejercicios + 1):
+        resp_usuario = request.form.get(f"respuesta_usuario_{i}", "").strip()
+        resp_correcta = request.form.get(f"respuesta_correcta_{i}", "").strip()
+        pregunta = request.form.get(f"pregunta_{i}", "") # Agrega un hidden con la pregunta en el HTML
+        explicacion = request.form.get(f"explicacion_{i}", "")
+
+        es_correcta = resp_usuario == resp_correcta
+        if es_correcta:
+            aciertos += 1
+
+        # Guardamos cada respuesta individual en la lista para mostrarla en la vista de resultados
+        resultados_detallados.append({
+            "pregunta": pregunta,
+            "tu_respuesta": resp_usuario,
+            "correcta": resp_correcta,
+            "es_correcta": es_correcta,
+            "explicacion": explicacion
+        })
+
+    # 2. GUARDAR EN LA DB (Persistencia real)
+    # Usamos el servicio de usuario que ya tenías para registrar el progreso
+    UsuarioService.registrar_progreso(
+        u_id=u_id,
+        tema="Ecuaciones de Primer Grado", # O el id_tema que recibas
+        total=total_ejercicios,
+        aciertos=aciertos,
+        dificultad="Normal"
+    )
+
+    return render_template("resultado_practica.html", 
+                           resultados=resultados_detallados, 
+                           total=total_ejercicios, 
+                           aciertos=aciertos)
 # --- Practica: Finalizar ---
 @usuario_bp.route("/finalizar_practica", methods=['POST'])
 def finalizar_practica():
@@ -257,18 +316,16 @@ def finalizar_practica():
     if not u_id:
         return jsonify({"status": "error", "message": "Usuario no autenticado"}), 401
     
-    tema_recibido = data.get('tema', 'General')  # Por ahora lo dejamos como "General", pero en el futuro lo enviaremos desde el JS para saber qué tema se practicó
-    
     # El Service se encarga de registrar el progreso y también de manejar la lógica de subida de nivel
     UsuarioService.registrar_progreso(
         u_id=u_id,
-        tema=tema_recibido,
+        tema=data.get('tema', 'General'),
         total=data.get('total'),
         aciertos=data.get('aciertos'),
         dificultad='Normal'
     )
     
-    return jsonify({"status": "success"})  
+    return jsonify({"status": "success", "message": "Progreso registrado correctamente"})  
 
 # --- Resultados ---
 @usuario_bp.route("/resultados")
@@ -304,10 +361,42 @@ def progreso():
     return render_template('progreso.html', stats=datos_reales)
 
 # --- Tutor ---
-@usuario_bp.route("/tutor")
+@usuario_bp.route("/tutor", methods=["GET", "POST"])
 def tutor():
-    # El HTML espera una variable 'historial'. Se la pasamos vacía al inicio.
-    return render_template("tutor.html", historial=None)
+    u_id = session.get('usuario_id')
+    if not u_id:
+        return redirect(url_for('usuario.login'))
+    
+    if request.method == "POST":
+        datos = request.get_json()
+        pregunta_usuario = datos.get("mensaje")
+
+        # 1. Guardar lo que escribió Gael
+        nuevo_msj = HistorialTutor(usuario_id=u_id, contenido=pregunta_usuario, es_bot=False)
+        db.session.add(nuevo_msj)
+
+        try:
+            # Llamada a Gemini 2.5 (tu código del test_aq)
+            response = client.models.generate_content(
+                model="gemini-2.5-flash", 
+                contents=pregunta_usuario
+            )
+            respuesta_ia = response.text
+            
+            # 2. Guardar lo que respondió el Robot
+            respuesta_bot = HistorialTutor(usuario_id=u_id, contenido=respuesta_ia, es_bot=True)
+            db.session.add(respuesta_bot)
+            
+            db.session.commit() # Guardamos ambos mensajes en MySQL
+            return jsonify({"respuesta": respuesta_ia})
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({"respuesta": f"Error: {str(e)}"}), 500
+
+    # 3. Al cargar (GET), traer el historial ordenado por fecha
+    historial = HistorialTutor.query.filter_by(usuario_id=u_id).order_by(HistorialTutor.fecha.asc()).all()
+    user = Usuario.query.get(u_id)
+    return render_template("tutor.html", historial=historial, user=user)
 # --- Tutor: Preguntar ---
 @usuario_bp.route("/preguntar_tutor", methods=["POST"])
 def preguntar_tutor():

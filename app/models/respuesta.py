@@ -1,10 +1,14 @@
 from config.database import db
+from datetime import datetime
 
 class Respuesta(db.Model):
-    __tablename__ = 'respuesta' # El nombre que tienes en MySQL
-    id_respuesta = db.Column(db.Integer, primary_key=True)
-    id_evaluacion = db.Column(db.Integer)
-    pregunta = db.Column(db.Text)
-    respuesta_usuario = db.Column(db.Text)
-    respuesta_correcta = db.Column(db.Text)
-    resultado = db.Column(db.Integer) # tinyint(1) se maneja como Integer o Boolean en SQLAlchemy
+    __tablename__ = 'respuesta'
+    id_respuesta = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    id_evaluacion = db.Column(db.Integer, db.ForeignKey('evaluacion.id_evaluacion'), nullable=False)
+    pregunta = db.Column(db.Text, nullable=True)
+    respuesta_usuario = db.Column(db.Text, nullable=True)
+    respuesta_correcta = db.Column(db.Text, nullable=True)
+    resultado = db.Column(db.Boolean, nullable=True) # El tinyint(1) de tu MySQL
+
+    def __repr__(self):
+        return f'<Respuesta {self.id_respuesta}>'

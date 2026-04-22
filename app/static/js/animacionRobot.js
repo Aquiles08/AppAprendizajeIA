@@ -76,3 +76,78 @@ chatForm.addEventListener('submit', function(e) {
 
 // --- Iniciamos la animación al cargar la página ---
 setRobotState('NORMAL');
+
+//CHAT 
+// --- Lógica del Chat del Tutor ---
+document.addEventListener('DOMContentLoaded', () => {
+    const chatForm = document.getElementById('chatForm');
+    const userInput = document.getElementById('userInput');
+    const chatWindow = document.getElementById('chatWindow');
+
+    if (chatForm) {
+        chatForm.addEventListener('submit', (e) => {
+            e.preventDefault(); // CRUCIAL: evita que la página se recargue
+
+            const mensaje = userInput.value.trim();
+            if (mensaje === "") return;
+
+            // 1. Pintar tu mensaje en el chat
+            chatWindow.innerHTML += `
+                <div class="chat-message-user">
+                    <div class="message-text">${mensaje}</div>
+                </div>
+            `;
+            userInput.value = ""; // Limpiar input
+            chatWindow.scrollTop = chatWindow.scrollHeight; // Scroll al fondo
+
+            // 2. Enviar a Flask
+            fetch('/tutor', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ mensaje: mensaje })
+            })
+            .then(response => response.json())
+            // ... dentro de tu fetch donde recibes la respuesta
+            .then(data => {
+                const chatWindow = document.getElementById('chatWindow');
+    
+                // Crear el contenedor del mensaje de la IA
+                const aiMessageDiv = document.createElement('div');
+                aiMessageDiv.className = 'chat-message-ai';
+    
+                // Parsear el Markdown a HTML
+                const contenidoLimpio = marked.parse(data.respuesta);
+    
+                aiMessageDiv.innerHTML = `
+                    <img src="/static/img/avatar_robot.png" class="chat-avatar">
+                    <div class="message-text">${contenidoLimpio}</div>
+                `;
+    
+                chatWindow.appendChild(aiMessageDiv);
+    
+                // IMPORTANTE: Decirle a MathJax que renderice las nuevas fórmulas
+                MathJax.typesetPromise(); 
+    
+                chatWindow.scrollTop = chatWindow.scrollHeight;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    }
+});
+
+function activarSimulador() {
+    const input = document.getElementById('userInput');
+    const form = document.getElementById('chatForm');
+
+    // 1. Ponemos el "comando" en el input
+    input.value = "Activa el Modo Simulador: Ponme un ejercicio de Ecuaciones Diferenciales o Java y califica mi respuesta paso a paso.";
+
+    // 2. Disparamos el evento de envío (submit) del formulario
+    // Esto hará que se ejecute tu función de fetch que ya tienes programada
+    form.dispatchEvent(new Event('submit'));
+    
+    // 3. Opcional: Cambiamos algo visual para que Gael sepa que está en examen
+    document.querySelector('.chat-main-column').style.boxShadow = "0 0 15px rgba(140, 82, 255, 0.5)";
+}

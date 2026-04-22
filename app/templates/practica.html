@@ -42,17 +42,22 @@
                 </div>
             </div>
 
-            <div id="contenedor-ejercicios" class="ejercicios-grid">
-                <div class="ejercicio-card">
-                    <p class="ejercicio-enunciado">Cargando ejercicios de IA...</p>
+            <form method="POST" action="{{ url_for('usuario.procesar_practica') }}" id="form-practica">
+                <div id="contenedor-ejercicios" class="ejercicios-grid">
+                    <div class="ejercicio-card">
+                        <p class="ejercicio-enunciado">Cargando ejercicios de IA...</p>
+                    </div>
                 </div>
-            </div>
 
-            <div class="submit-practica-container">
-                <button type="button" class="submit-btn-wide" id="btn-finalizar" onclick="finalizarSesion()">
-                    Enviar respuestas
-                </button>
-            </div>
+                <input type="hidden" name="respuesta_correcta" value="{{ ejercicios[0].solucion }}">
+                <input type="hidden" name="explicacion" value="{{ ejercicios[0].explicacion }}">
+
+                <div class="submit-practica-container">
+                    <button type="submit" class="submit-btn-wide" id="btn-finalizar">
+                        Enviar respuestas
+                    </button>
+                </div>
+            </form>
         </section>
     </main>
 

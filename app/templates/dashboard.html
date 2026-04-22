@@ -26,7 +26,9 @@
             <div class="banner-text">
                 <h1>Bienvenido, {{ session['usuario_nombre'] }}!!</h1>
                 <p>Continua con tu viaje de aprendizaje personalizado</p>
-                <span class="level-badge">{{ session.get('nivel', 'Pendiente') }}</span>
+                <div class="level-badge">
+                    {{ user.nivel if user.nivel else 'Pendiente' }}
+                </div>
             </div>
             <div class="banner-avatar">
                 <div class="avatar-circle-lg">
@@ -35,39 +37,55 @@
             </div>
         </section>
 
-        <section class="navigation-grid">
-            
-            <a href="{{ url_for('usuario.examen') }}" class="nav-button">
-                <span>Examen diagnostico</span>
-            </a>
-            
-            <a href="{{ url_for('usuario.ruta') }}" class="nav-button">
-                <span>Rutas de aprendizaje</span>
-            </a>
-            
-            <a href="{{ url_for('usuario.practica') }}" class="nav-button">
-                <span>Practica</span>
-            </a>
-            
-            <a href="{{ url_for('usuario.progreso') }}" class="nav-button">
-                <span>Progreso</span>
-            </a>
-            
-            <a href="{{ url_for('usuario.tutor') }}" class="nav-button">
-                <span>Tutor IA</span>
-            </a>
-
-            <div class="nav-button placeholder-button">
-                <span>Perfil</span>
+        <div class="stats-grid">
+            <div class="stat-item-dash">
+                <span class="stat-value-dash">{{ total_ejercicios }}</span>
+                <span class="stat-label-dash">Ejercicios Realizados</span>
             </div>
+            <div class="stat-item-dash">
+                <span class="stat-value-dash">{{ total_aciertos }}</span>
+                <span class="stat-label-dash">Aciertos Totales</span>
+            </div>
+        </div>
 
+        <section class="navigation-grid">
+            <a href="{{ url_for('usuario.examen') }}" class="nav-button">Examen diagnostico</a>
+            <a href="{{ url_for('usuario.ruta') }}" class="nav-button">Rutas de aprendizaje</a>
+            <a href="{{ url_for('usuario.practica') }}" class="nav-button">Practica</a>
+            <a href="{{ url_for('usuario.progreso') }}" class="nav-button">Progreso</a>
+            <a href="{{ url_for('usuario.tutor') }}" class="nav-button">Tutor IA</a>
+            <div class="nav-button placeholder-button">Perfil</div>
+        </section>
+
+        <section class="activity-section">
+            <h3 style="color: var(--blossom-purple); font-weight: bold;">Actividad Reciente</h3>
+            <table class="styled-table-dash">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>ID Tema</th>
+                        <th>Resultado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for registro in historial %}
+                    <tr>
+                        <td>{{ registro.fecha.strftime('%d/%m/%Y') }}</td>
+                        <td>{{ registro.id_tema }}</td>
+                        <td><strong>{{ registro.aciertos }}/{{ registro.ejercicios_realizados }}</strong></td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="3" style="text-align: center; color: #999;">Aún no tienes actividad registrada.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </section>
 
         <div class="logout-container">
             <a href="{{ url_for('usuario.logout') }}" class="logout-link">Cerrar sesión</a>
         </div>
-
     </main>
-
 </body>
 </html>

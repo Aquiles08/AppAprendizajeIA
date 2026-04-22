@@ -1,0 +1,18 @@
+<h2>Resumen de tu Práctica: {{ aciertos }}/{{ total }}</h2>
+
+{% for res in resultados %}
+<div class="card {{ 'border-success' if res.es_correcta else 'border-danger' }}">
+    <p><strong>Pregunta:</strong> {{ res.pregunta }}</p>
+    <p>Tu respuesta: {{ res.tu_respuesta }}</p>
+    
+    {% if not res.es_correcta %}
+        <p class="text-danger">Incorrecto. La respuesta era: {{ res.correcta }}</p>
+        <p><em>Explicación de Blossom:</em> {{ res.explicacion }}</p>
+    {% else %}
+        <p class="text-success">¡Correcto!</p>
+    {% endif %}
+</div>
+<hr>
+{% endfor %}
+
+<a href="{{ url_for('usuario.dashboard') }}" class="btn btn-primary">Volver al Dashboard</a>

@@ -5,6 +5,19 @@
     <title>Tutor IA - Blossom</title>
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <script>
+    // Configuración para que MathJax procese el contenido dinámico
+        window.MathJax = {
+        tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']]
+        }
+        };
+    </script>
 </head>
 <body>
 
@@ -29,24 +42,44 @@
             <a href="{{ url_for('usuario.dashboard') }}" class="btn-inicio-small">Inicio</a>
         </div>
 
+        <div class="simulator-control">
+                    <button type="button" class="btn-modo-simulador" onclick="activarSimulador()">
+                        🚀 Activar Simulador de Examen
+                    </button>
+                </div>
+
         <section class="tutor-interaction-container">
             <div class="chat-main-column">
                 <div class="chat-bubble-area" id="chatWindow">
-                    <!-- Mensaje inicial del tutor -->
+                    {% if not historial %}
                     <div class="chat-message-ai">
                         <img src="{{ url_for('static', filename='img/avatar_robot.png') }}" class="chat-avatar">
                         <div class="message-text">Hola soy tu tutor de IA, ¿En qué puedo ayudarte hoy?</div>
                     </div>
-                    
-                    <!-- EJEMPLO DE CONVERSACIÓN: Mensaje del usuario "Cuanto es 2 + 2??" -->
-                    <div class="chat-message-user">
-                        <div class="message-text">Cuanto es 2 + 2??</div>
-                        <!-- Opcional: avatar del usuario, si quieres lo agregamos -->
-                    </div>
+                    {% endif %}
+
+                    {% for mensaje in historial %}
+                        {% if mensaje.es_bot %}
+                        <div class="chat-message-ai">
+                            <img src="{{ url_for('static', filename='img/avatar_robot.png') }}" class="chat-avatar">
+                            <div class="message-text">{{ mensaje.contenido }}</div>
+                        </div>
+                        {% else %}
+                        <div class="chat-message-user">
+                            <div class="message-text">{{ mensaje.contenido }}</div>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+                <div class="chat-suggestions">
+                    <button type="button" class="btn-suggestion" onclick="setQuery('¿Qué es el Wronskiano?')">Wronskiano</button>
+                    <button type="button" class="btn-suggestion" onclick="setQuery('Threads en Java')">Threads Java</button>
+                    <button type="button" class="btn-suggestion" onclick="setQuery('Ecuaciones diferenciales')">Ecuaciones Dif.</button>
                 </div>
 
                 <form class="chat-input-row" id="chatForm">
-                    <input type="text" id="userInput" placeholder="Escribe para hablar con tu Tutor IA" class="input-escribir">
+                    <input type="text" id="userInput" placeholder="Escribe para hablar con tu Tutor IA" class="input-escribir" autocomplete="off">
                     <button type="submit" class="btn-enviar-chat">
                         <img src="{{ url_for('static', filename='img/arrow_send.png') }}" alt="Enviar">
                     </button>
@@ -61,6 +94,17 @@
         </section>
     </main>
 
+    <script>
+        // Función para los botones de sugerencia
+        function setQuery(texto) {
+            document.getElementById('userInput').value = texto;
+            document.getElementById('userInput').focus();
+        }
+
+        // Auto-scroll al final del chat al cargar
+        const chatWindow = document.getElementById('chatWindow');
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+    </script>
     <script src="{{ url_for('static', filename='js/animacionRobot.js') }}"></script>
 
 </body>

@@ -17,11 +17,18 @@ function renderizarEjercicios() {
 
     // Dibujamos cada ejercicio usando EJERCICIOS_DATA
     EJERCICIOS_DATA.forEach((ej, index) => {
+    const i = index + 1; // Para manejar base 1 en el controlador
     const div = document.createElement('div');
-    div.className = 'ejercicio-item'; // Asegúrate que esta clase tenga estilo en style.css
+    div.className = 'ejercicio-item';
     div.innerHTML = `
-        <p><strong>Pregunta ${index + 1}:</strong> ${ej.pregunta}</p>
-        <input type="text" id="resp-${index}" placeholder="Tu respuesta">
+        <p><strong>Pregunta ${i}:</strong> ${ej.pregunta}</p>
+        
+        <input type="text" name="respuesta_usuario_${i}" id="resp-${index}" placeholder="Tu respuesta">
+        
+        <input type="hidden" name="pregunta_${i}" value="${ej.pregunta}">
+        <input type="hidden" name="respuesta_correcta_${i}" value="${ej.solucion}">
+        <input type="hidden" name="explicacion_${i}" value="${ej.explicacion}">
+
         <button type="button" class="btn-validar" onclick="validarIndividual(${index}, '${ej.solucion}', this)">
             Validar
         </button>
@@ -46,9 +53,6 @@ function validarIndividual(index, solucion, boton) {
 }
 
 async function finalizarSesion() {
-    console.log("Enviando resultados...", { total: totalEjercicios, aciertos: aciertos, tema: TEMA_ACTUAL });
-
-    // 1. Preparamos los datos
     const data = {
         aciertos: aciertos,
         total: totalEjercicios,
@@ -56,40 +60,22 @@ async function finalizarSesion() {
     };
 
     try {
-        // 2. Intentamos enviar la petición
-        const response = await fetch('/finalizar_practica', {
+        // CAMBIO AQUÍ: Asegúrate de que la ruta incluya /usuario/ si así registraste tu Blueprint
+        const response = await fetch('/usuario/finalizar_practica', { 
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         });
 
-        // 3. Verificamos si el servidor respondió bien (status 200)
-        if (!response.ok) {
-            throw new Error('No se pudo guardar el progreso en el servidor');
-        }
+        if (!response.ok) throw new Error('Error en el servidor');
 
         const resultado = await response.json();
-
-        // 4. Si el servidor dice que todo ok, redirigimos
         if (resultado.status === "success") {
-            alert("¡Progreso guardado con éxito!");
-            window.location.href = "/resultados"; // O "/progreso", según prefieras
-        } else {
-            alert("Error: " + (resultado.message || "Error desconocido"));
+            window.location.href = "/dashboard"; // Redirige al éxito
         }
-
     } catch (error) {
-        // 5. Si no hay internet o el servidor falló, avisamos
-        console.error("Error al enviar datos:", error);
-        alert("¡Ups! Hubo un problema de conexión. No cierres la página e intenta de nuevo.");
-        
-        // Si tienes un botón de reintentar en tu HTML, aquí se muestra
-        const btnReintentar = document.getElementById('btn-reintentar');
-        if (btnReintentar) {
-            btnReintentar.style.display = 'block';
-        }
+        console.error("Error:", error);
+        alert("¡Ups! Hubo un problema de conexión.");
     }
 }
 

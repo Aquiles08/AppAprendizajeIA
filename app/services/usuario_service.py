@@ -18,30 +18,38 @@ class UsuarioService:
 
     @staticmethod
     def registrar_progreso(u_id, tema, total, aciertos, dificultad):
-        # 1. Guardar el progreso como ya lo hacíamos
+    # --- LA PARTE FORMAL ---
+    # Como tu DB espera un INT en id_tema, mapeamos el nombre al ID.
+    # Si después tienes una tabla 'temas', aquí harías un: Tema.query.filter_by(nombre=tema).first()
+    
+        mapa_temas = {
+            "Ecuaciones de Primer Grado": 1,
+            "Sistemas de Ecuaciones": 2,
+            "Operaciones Básicas": 3
+        }
+    
+    # Obtenemos el ID, si no existe el tema en el mapa, le ponemos 1 por defecto
+        tema_id_final = mapa_temas.get(tema, 1)
+
+    # 1. Guardar el progreso usando id_tema
         nuevo_progreso = ProgresoUsuario(
             usuario_id=u_id,
-            tema=tema,
+            id_tema=tema_id_final,
             ejercicios_realizados=total,
             aciertos=aciertos,
             dificultad_alcanzada=dificultad
         )
         db.session.add(nuevo_progreso)
-        
-        # 2. Lógica de Subida de Nivel
-        # Si el usuario tuvo un desempeño perfecto (ejemplo: 5 de 5)
+    
+    # 2. Lógica de Subida de Nivel (Se mantiene igual)
         if total > 0 and aciertos == total:
             usuario = Usuario.query.get(u_id)
-            
-            # Definimos la escalera de niveles
             niveles = ["Sin realizar examen", "Principiante", "Intermedio", "Avanzado", "Experto"]
-            
-            if usuario.nivel in niveles:
+        
+            if usuario and usuario.nivel in niveles:
                 indice_actual = niveles.index(usuario.nivel)
-                # Si no ha llegado al nivel máximo, lo subimos
                 if indice_actual < len(niveles) - 1:
                     usuario.nivel = niveles[indice_actual + 1]
-                    # Aquí podrías imprimir en consola para debuguear
                     print(f"¡Usuario {u_id} subió a {usuario.nivel}!")
 
         db.session.commit()
