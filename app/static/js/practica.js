@@ -35,6 +35,9 @@ function renderizarEjercicios() {
     `;
     contenedor.appendChild(div);
 });
+    if (window.MathJax) {
+        window.MathJax.typesetPromise();
+    }
 }
 
 function validarIndividual(index, solucion, boton) {
@@ -45,7 +48,7 @@ function validarIndividual(index, solucion, boton) {
         boton.classList.add('saved');
         boton.innerText = "¡Correcto!";
         boton.disabled = true; // Desactivamos el botón para no sumar aciertos dobles
-        input.disabled = true;
+        input.readOnly = true; // Mantiene el valor para el POST
     } else {
         boton.style.backgroundColor = "#e74c3c";
         boton.innerText = "Revisar";

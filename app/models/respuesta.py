@@ -8,7 +8,8 @@ class Respuesta(db.Model):
     pregunta = db.Column(db.Text, nullable=True)
     respuesta_usuario = db.Column(db.Text, nullable=True)
     respuesta_correcta = db.Column(db.Text, nullable=True)
-    resultado = db.Column(db.Boolean, nullable=True) # El tinyint(1) de tu MySQL
+    resultado = db.Column(db.Boolean, nullable=True)
+    metadatos_ia = db.Column(db.JSON, nullable=True)
 
     def __repr__(self):
         return f'<Respuesta {self.id_respuesta}>'

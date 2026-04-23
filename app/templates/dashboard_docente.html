@@ -1,0 +1,62 @@
+<main class="docente-container">
+    <div class="header-docente">
+        <h1>Panel de Control Docente - Blossom</h1>
+        <p>Monitoreo de progreso grupal y análisis de datos.</p>
+    </div>
+
+    <div class="grid-docente">
+        <section class="card-docente">
+            <h2>Estudiantes Activos</h2>
+            <div class="tabla-scroll">
+                <table class="blossom-table">
+                    <thead>
+                        <tr>
+                            <th>Estudiante</th>
+                            <th>Correo</th>
+                            <th>Nivel</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for alumno in alumnos %}
+                        <tr>
+                            <td>{{ alumno.nombre }}</td>
+                            <td>{{ alumno.correo }}</td>
+                            <td>
+                                <span class="badge">{{ alumno.nivel }}</span>
+                            </td>
+                            <td>
+                                <a href="{{ url_for('usuario.reportes') }}" class="btn-ver">Ver Reportes</a>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="4">No hay estudiantes registrados aún.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="card-docente">
+            <h2>Análisis de Dificultad</h2>
+            <p>Temas que requieren refuerzo:</p>
+            <div class="alerta-tema">
+                <strong>Ecuaciones de 1er Grado:</strong> 60% de errores en despeje.
+            </div>
+        </section>
+    </div>
+    <header class="docente-header" style="display: flex; justify-content: space-between; align-items: center;">
+    <div>
+        <h1>Panel de Control Docente</h1>
+        <p>Bienvenido, {{ session['usuario_nombre'] }}</p>
+    </div>
+    
+    <div class="logout-container">
+        <a href="{{ url_for('usuario.logout') }}" class="btn-logout" style="color: #d9534f; text-decoration: none; font-weight: bold; border: 1px solid #d9534f; padding: 8px 15px; border-radius: 5px;">
+            🚪 Cerrar Sesión
+        </a>
+    </div>
+</header>
+</main>

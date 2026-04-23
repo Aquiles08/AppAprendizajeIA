@@ -11,6 +11,7 @@ from app.models.curso import Curso # Importamos el modelo Curso para hacer consu
 from app.models.respuesta import Respuesta # Importamos el modelo Respuesta para guardar las respuestas del examen
 from app.models.progresoUsuario import ProgresoUsuario # Importamos el modelo ProgresoUsuario para guardar el progreso de los usuarios
 from app.models.historialTutor import HistorialTutor # Importamos el modelo HistorialTutor para guardar el historial de conversaciones con el tutor IA
+from app.models.evaluacion import Evaluacion # Importamos el modelo Evaluacion para guardar los resultados de los exámenes
 
 #Servicios y lógica
 from app.services.ia_service import AIService # Importamos el servicio de IA para generar ejercicios personalizados
@@ -36,7 +37,13 @@ def login():
             session['usuario_id'] = user.id_usuario
             session['usuario_nombre'] = user.nombre
             session['tipo_usuario'] = user.tipo_usuario
-            return redirect(url_for('usuario.dashboard'))
+            
+            # Redirección basada en el tipo de usuario
+            if user.tipo_usuario.lower() == 'docente':
+                return redirect(url_for('usuario.dashboard_docente'))
+            else:
+                return redirect(url_for('usuario.dashboard'))
+            
         else:
             flash("Correo o contraseña incorrectos. Inténtalo de nuevo.")
             return redirect(url_for('usuario.login'))
@@ -98,7 +105,7 @@ def eliminar_usuario(id):
     return redirect(url_for('usuario.login'))
 
 
-# --- RUTAS DEL DASHBOARD ---
+# --- RUTAS DEL DASHBOARD ESTUDIANTE---
 
 # --- Dashboard ---
 @usuario_bp.route("/dashboard")
@@ -131,7 +138,6 @@ def procesar_examen():
     if not u_id:
         return redirect(url_for('usuario.login'))   
     
-    # Diccionario con las respuestas correctas para comparar
     correctas = {
         "p1": {"texto": "¿Qué es el Aprendizaje Supervisado?", "ans": "B"},
         "p2": {"texto": "¿Cuál es la función principal de una Red Neuronal?", "ans": "B"},
@@ -141,34 +147,55 @@ def procesar_examen():
     }
 
     aciertos = 0
-    # Recorremos las 5 preguntas
+    respuestas_a_guardar = []
+
+    # 1. Primero calculamos los aciertos
     for i in range(1, 6):
         llave = f"p{i}"
-        resp_usuario = request.form.get(llave)
-        if not resp_usuario:
-            resp_usuario = "No respondida"
+        resp_usuario = request.form.get(llave) or "No respondida"
         resp_correcta = correctas[llave]["ans"]
         es_correcta = 1 if resp_usuario == resp_correcta else 0
         if es_correcta: aciertos += 1
+        
+        # Guardamos los datos temporalmente en una lista
+        respuestas_a_guardar.append({
+            "pregunta": correctas[llave]["texto"],
+            "usuario": resp_usuario,
+            "correcta": resp_correcta,
+            "resultado": es_correcta
+        })
 
-        # GUARDAR EN TU TABLA 'respuesta'
+    puntaje = (aciertos / 5) * 100
+
+    # 2. CREAR LA EVALUACIÓN (CRUCIAL para evitar el error)
+    from datetime import datetime
+    nueva_evaluacion = Evaluacion(
+        id_usuario=u_id,
+        id_tema=1, # O el ID del tema correspondiente
+        puntuacion=puntaje,
+        fecha=datetime.now(),
+        tipo_evaluacion='Examen'
+    )
+    db.session.add(nueva_evaluacion)
+    db.session.flush() # Esto genera el id_evaluacion SIN cerrar la transacción
+
+    # 3. AHORA SÍ, GUARDAR LAS RESPUESTAS con el ID real
+    for r in respuestas_a_guardar:
         nueva_resp = Respuesta(
-            id_evaluacion=u_id, # Usamos el ID usuario como referencia
-            pregunta=correctas[llave]["texto"],
-            respuesta_usuario=resp_usuario,
-            respuesta_correcta=resp_correcta,
-            resultado=es_correcta
+            id_evaluacion=nueva_evaluacion.id_evaluacion, # <--- ID REAL generado arriba
+            pregunta=r["pregunta"],
+            respuesta_usuario=r["usuario"],
+            respuesta_correcta=r["correcta"],
+            resultado=r["resultado"]
         )
         db.session.add(nueva_resp)
 
-    # Calcular nivel y actualizar tabla Usuario
-    puntaje = (aciertos / 5) * 100
+    # 4. Actualizar nivel del usuario
     nivel = "Avanzado" if puntaje >= 70 else "Principiante"
-    
-    #Actualizamos el nivel del usuario en la tabla Usuario
     user = Usuario.query.get(u_id)
     user.nivel = nivel
-    db.session.commit()
+    
+    db.session.commit() # Un solo commit para guardar TODO
     
     return render_template("resultado_examen.html", puntaje=puntaje, nivel=nivel, aciertos=aciertos)
 
@@ -273,19 +300,30 @@ def procesar_practica():
 
     resultados_detallados = []
     aciertos = 0
-    total_ejercicios = 3 # La cantidad que definimos en la ruta 'practica'
+    total_ejercicios = 3
 
     for i in range(1, total_ejercicios + 1):
+        # 1. Obtenemos los datos y limpiamos espacios de los extremos
         resp_usuario = request.form.get(f"respuesta_usuario_{i}", "").strip()
         resp_correcta = request.form.get(f"respuesta_correcta_{i}", "").strip()
-        pregunta = request.form.get(f"pregunta_{i}", "") # Agrega un hidden con la pregunta en el HTML
+        pregunta = request.form.get(f"pregunta_{i}", "")
         explicacion = request.form.get(f"explicacion_{i}", "")
 
-        es_correcta = resp_usuario == resp_correcta
+        # 2. LIMPIEZA PROFUNDA: Quitamos todos los espacios para comparar (ej: "81 / 8" -> "81/8")
+        clean_user = resp_usuario.replace(" ", "").lower()
+        clean_correct = resp_correcta.replace(" ", "").lower()
+
+        # 3. Lógica para el "Sin Respuesta" por culpa del 'disabled' en JS
+        # Si el usuario NO mandó nada, pero el ejercicio se marcó como correcto en el cliente,
+        # asumimos que fue por el disabled.
+        es_correcta = clean_user == clean_correct if clean_user != "" else False
+        
+        # --- PARCHE PARA DISABLED ---
+        # Si el usuario acierta en el JS, el botón se bloquea y el input no llega.
+        # Podrías dejar que el JS mande los aciertos, pero para validar aquí:
         if es_correcta:
             aciertos += 1
 
-        # Guardamos cada respuesta individual en la lista para mostrarla en la vista de resultados
         resultados_detallados.append({
             "pregunta": pregunta,
             "tu_respuesta": resp_usuario,
@@ -294,20 +332,12 @@ def procesar_practica():
             "explicacion": explicacion
         })
 
-    # 2. GUARDAR EN LA DB (Persistencia real)
-    # Usamos el servicio de usuario que ya tenías para registrar el progreso
-    UsuarioService.registrar_progreso(
-        u_id=u_id,
-        tema="Ecuaciones de Primer Grado", # O el id_tema que recibas
-        total=total_ejercicios,
-        aciertos=aciertos,
-        dificultad="Normal"
-    )
+    # Guardar progreso...
+    UsuarioService.registrar_progreso(u_id=u_id, tema="Ecuaciones de Primer Grado", 
+                                     total=total_ejercicios, aciertos=aciertos, dificultad="Normal")
 
-    return render_template("resultado_practica.html", 
-                           resultados=resultados_detallados, 
-                           total=total_ejercicios, 
-                           aciertos=aciertos)
+    return render_template("resultado_practica.html", resultados=resultados_detallados, 
+                           total=total_ejercicios, aciertos=aciertos)
 # --- Practica: Finalizar ---
 @usuario_bp.route("/finalizar_practica", methods=['POST'])
 def finalizar_practica():
@@ -410,21 +440,54 @@ def preguntar_tutor():
     
     return render_template("tutor.html", historial=historial_simulado)
 
-# --- Reportes ---
-@usuario_bp.route("/reportes")
-def reportes():
-    # 1. Seguridad: Solo si el usuario es Docente o Admin
-    if session.get('tipo_usuario') != 'Docente':
-        return "Acceso denegado. Solo los docentes pueden ver reportes.", 403
-
-    # 2. Consultar todos los alumnos que ya hicieron el examen
-    # Traemos nombre, correo y nivel
-    alumnos = Usuario.query.filter(Usuario.tipo_usuario == 'Estudiante').all()
-
-    return render_template("reportes.html", alumnos=alumnos)
-
 # --- LOGOUT ---
 @usuario_bp.route("/logout")
 def logout():
     session.clear()
     return redirect(url_for('usuario.login'))
+
+
+# --- RUTAS DEL DASHBOARD DOCENTE ---
+
+# --- Dashboard Docente ---
+@usuario_bp.route("/dashboard_docente")
+def dashboard_docente():
+    u_id = session.get('usuario_id')
+    rol = session.get('tipo_usuario')
+    
+    # Verificamos que sea un docente real en la sesión
+    if not u_id or rol.lower() != 'docente':
+        return redirect(url_for('usuario.login'))
+    
+    estudiantes = Usuario.query.filter_by(tipo_usuario='Estudiante').all()
+        
+    return render_template("dashboard_docente.html", alumnos=estudiantes)
+
+# --- Reportes ---
+@usuario_bp.route("/reportes")
+def reportes():
+    # Seguridad
+    tipo = session.get('tipo_usuario')
+    if not tipo or tipo.lower() != 'docente':
+        return redirect(url_for('usuario.login'))
+
+    # 1. Lista de alumnos con sus niveles (Lo que ya tienes)
+    alumnos = Usuario.query.filter_by(tipo_usuario='Estudiante').all()
+
+    # 2. Análisis de Datos (SCRUM-39)
+    # Calculamos cuántos hay de cada nivel para una vista rápida
+    total_estudiantes = len(alumnos)
+    conteo_expertos = Usuario.query.filter_by(tipo_usuario='Estudiante', nivel='Experto').count()
+    conteo_principiantes = Usuario.query.filter_by(tipo_usuario='Estudiante', nivel='Principiante').count()
+    
+    # Pendientes de examen
+    sin_examen = total_estudiantes - (conteo_expertos + conteo_principiantes)
+
+    stats = {
+        'total': total_estudiantes,
+        'expertos': conteo_expertos,
+        'principiantes': conteo_principiantes,
+        'pendientes': sin_examen
+    }
+
+    return render_template("reportes.html", alumnos=alumnos, stats=stats)

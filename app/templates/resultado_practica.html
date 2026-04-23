@@ -1,18 +1,77 @@
-<h2>Resumen de tu Práctica: {{ aciertos }}/{{ total }}</h2>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Resumen de Práctica - Blossom</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="blossom-body">
 
-{% for res in resultados %}
-<div class="card {{ 'border-success' if res.es_correcta else 'border-danger' }}">
-    <p><strong>Pregunta:</strong> {{ res.pregunta }}</p>
-    <p>Tu respuesta: {{ res.tu_respuesta }}</p>
-    
-    {% if not res.es_correcta %}
-        <p class="text-danger">Incorrecto. La respuesta era: {{ res.correcta }}</p>
-        <p><em>Explicación de Blossom:</em> {{ res.explicacion }}</p>
-    {% else %}
-        <p class="text-success">¡Correcto!</p>
-    {% endif %}
-</div>
-<hr>
-{% endfor %}
+    <header class="main-header">
+        <div class="logo">
+            <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Blossom Logo">
+        </div>
+        <div class="user-avatar-header">
+            <div class="avatar-circle-sm">
+                <span>{{ session['usuario_nombre'][0] | upper }}</span>
+            </div>
+            <span class="user-name-header">{{ session['usuario_nombre'] }}</span>
+        </div>
+    </header>
 
-<a href="{{ url_for('usuario.dashboard') }}" class="btn btn-primary">Volver al Dashboard</a>
+    <main class="result-container">
+        
+        <div class="result-header">
+            <h1 class="blossom-title">Resumen de tu practica {{ aciertos }}/{{ total }}</h1>
+            <a href="{{ url_for('usuario.dashboard') }}" class="btn-inicio-outline">Inicio</a>
+        </div>
+
+        <div class="questions-area">
+            {% for res in resultados %}
+            <div class="blossom-question-card">
+        
+                <div class="question-card-header">
+                    <p>Pregunta {{ loop.index }}. “{{ res.pregunta }}”</p>
+                </div>
+
+                <div class="question-card-body">
+                    <div class="card-left">
+                        <p class="label-respuesta">Tu respuesta:</p>
+                        <p class="val-respuesta">
+                            <strong>
+                                {% if res.es_correcta and not res.tu_respuesta %}
+                                    {{ res.correcta }}  {# Si es correcta pero llegó vacía, mostramos la solución #}
+                                {% else %}
+                                    {{ res.tu_respuesta if res.tu_respuesta else 'Sin respuesta' }}
+                                {% endif %}
+                            </strong>
+                        </p>
+                
+                        <div class="status-box {{ 'box-correct' if res.es_correcta else 'box-incorrect' }}">
+                            {% if res.es_correcta %}
+                                <img src="{{ url_for('static', filename='img/check.png') }}" alt="Correcto" class="status-img">
+                            {% else %}
+                                <img src="{{ url_for('static', filename='img/error.png') }}" alt="Incorrecto" class="status-img">
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="card-right">
+                        <p class="explicacion-text">
+                            <strong>Explicación Blossom:</strong> {{ res.explicacion }}
+                        </p>
+                        {% if not res.es_correcta %}
+                            <div class="feedback-correcta">
+                                La respuesta correcta era: <strong>{{ res.correcta }}</strong>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+
+</body>
+</html>

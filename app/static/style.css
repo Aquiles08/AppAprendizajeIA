@@ -1461,7 +1461,7 @@ body {
 }
 
 .chat-bubble-area::-webkit-scrollbar-thumb {
-    background-color: #8c52ff;
+    background-color: var(--blossom-purple);
     border-radius: 10px;
 }
 
@@ -1474,4 +1474,243 @@ body {
     overflow-y: hidden !important;
     display: block !important;
     padding: 5px 0;
+}
+
+
+/* --- Paleta de Colores Blossom (Reemplaza si ya tienes los tuyos) --- */
+:root {
+    --blossom-purple-light: #f3ebff;
+    --blossom-green: #2ecc71;  /* El verde del check */
+    --blossom-red: #e74c3c;    /* El rojo del equis */
+    --text-dark: #333;
+    --text-gray: #666;
+}
+
+body.blossom-body {
+    background-color: #fcfcfc;
+    font-family: 'Quicksand', sans-serif; /* O la fuente que uses en tu proyecto */
+    color: var(--text-dark);
+    margin: 0;
+    padding: 0;
+}
+
+/* --- Contenedor Principal de Resultados --- */
+.result-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+/* --- Encabezado del Título (Título + Botón) --- */
+.result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.result-header h1.blossom-title {
+    color: var(--blossom-purple);
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+/* --- Estilo del Botón de Inicio (Blossom Outline) --- */
+.btn-inicio {
+    padding: 10px 25px;
+    border: 2px solid #b39ddb; /* Un lila más claro para el borde inicial */
+    border-radius: 20px;
+    color: var(--blossom-purple);
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.btn-inicio:hover {
+    background-color: var(--blossom-purple);
+    color: white;
+    border-color: var(--blossom-purple);
+}
+
+/* ========================================= */
+/* --- Tarjeta de Pregunta (Diseño Clave) --- */
+/* ========================================= */
+.blossom-question-card {
+    background: white;
+    border: 2px solid #b39ddb; /* El borde lila de tu imagen */
+    border-radius: 20px;
+    margin-bottom: 25px;
+    overflow: hidden; /* Para que el header morado no se salga */
+    box-shadow: 0 4px 6px rgba(0,0,0,0.03); /* Un shadow muy sutil */
+}
+
+/* Encabezado morado de la tarjeta */
+.question-header {
+    background-color: var(--blossom-purple);
+    color: white;
+    padding: 10px 20px;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.question-header p {
+    margin: 0;
+}
+
+/* Contenido Principal de la Tarjeta (FLEXBOX) */
+.question-content {
+    display: flex;
+    padding: 20px;
+    gap: 30px; /* Espacio entre columnas */
+}
+
+/* --- Sección Izquierda (Respuesta + Ícono) --- */
+.response-section {
+    flex: 0 0 35%; /* Ocupa el 35% y no crece */
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centrar respuesta e ícono */
+    justify-content: center;
+}
+
+.answer-text {
+    font-size: 1.1rem;
+    color: var(--text-dark);
+    margin: 0 0 15px 0;
+}
+
+.answer-value {
+    font-weight: 700;
+    color: var(--text-dark);
+}
+
+/* --- Íconos de Estatus (Los recuadros de ✔️/❌) --- */
+.status-icon {
+    font-size: 2.5rem; /* Tamaño grande del emoji */
+    width: 60px;
+    height: 60px;
+    border-radius: 15px; /* Bordes redondeados del recuadro */
+    border: 3px solid transparent; /* Inicialmente transparente */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Ícono Correcto (Verde) */
+.status-correct {
+    border-color: var(--blossom-green);
+    color: var(--blossom-green);
+    background-color: #e8f8f0; /* Un verde de fondo muy clarito */
+}
+
+/* Ícono Incorrecto (Rojo) */
+.status-incorrect {
+    border-color: var(--blossom-red);
+    color: var(--blossom-red);
+    background-color: #fdf2f0; /* Un rojo de fondo muy clarito */
+}
+
+/* --- Sección Derecha (Explicación Blossom) --- */
+.explanation-section {
+    flex: 1; /* Ocupa todo el espacio restante */
+    padding-left: 10px;
+}
+
+.explanation-section p {
+    color: var(--text-dark);
+    line-height: 1.6;
+    font-size: 1rem;
+    margin: 0 0 10px 0;
+}
+
+.explanation-section p strong {
+    font-weight: 700;
+}
+
+/* Pequeña nota de feedback solo si falló */
+.correct-answer-feedback {
+    font-weight: 600;
+    color: var(--blossom-purple);
+    background-color: var(--blossom-purple-light);
+    padding: 8px;
+    border-radius: 10px;
+}
+
+/* Layout del Contenedor de Práctica */
+.result-container {
+    max-width: 1000px;
+    margin: 30px auto;
+    padding: 0 20px;
+}
+
+.result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.blossom-title {
+    color: #8c52ff;
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+/* Tarjeta de Pregunta Estilo Imagen */
+.blossom-question-card {
+    border: 2px solid var(--blossom-purple);
+    border-radius: 15px;
+    margin-bottom: 20px;
+    overflow: hidden;
+    background: #fff;
+}
+
+.question-card-header {
+    background: var(--blossom-purple);
+    color: white;
+    padding: 8px 15px;
+    font-weight: 600;
+}
+
+.question-card-body {
+    display: flex;
+    padding: 20px;
+    gap: 20px;
+    align-items: center;
+}
+
+.card-left {
+    flex: 0 0 30%;
+    text-align: center;
+    border-right: 1px solid #eee;
+    padding-right: 20px;
+}
+
+.card-right {
+    flex: 1;
+}
+
+/* Íconos de Estado */
+.status-img {
+    width: 60px;
+    height: auto;
+}
+
+.feedback-correcta {
+    margin-top: 10px;
+    background: #f3ebff;
+    padding: 10px;
+    border-radius: 8px;
+    color: #555;
+    border-left: 4px solid var(--blossom-purple);
+}
+
+.btn-inicio-outline {
+    border: 2px solid var(--blossom-purple);
+    color: var(--blossom-purple);
+    padding: 8px 20px;
+    border-radius: 20px;
+    text-decoration: none;
+    font-weight: 600;
 }
