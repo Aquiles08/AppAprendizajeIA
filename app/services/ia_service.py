@@ -41,3 +41,33 @@ class AIService:
         except Exception as e:
             print(f"❌ Error en IA Service: {e}")
             return []
+    # NUEVO MÉTODO: Analista de Errores Pedagógicos
+    def analizar_error_pedagogico(self, tema, preguntas_fallidas):
+        """
+        Recibe una lista de ejercicios que el alumno falló y determina la causa común.
+        """
+        if not preguntas_fallidas:
+            return "Ninguno"
+
+        prompt = f"""
+        Actúa como un experto en pedagogía matemática. 
+        Un estudiante falló los siguientes ejercicios del tema '{tema}':
+        {preguntas_fallidas}
+
+        ¿Cuál es la causa más probable del error? 
+        Responde ÚNICAMENTE con una o dos palabras de esta lista:
+        - Signos
+        - Despeje
+        - Jerarquía de operaciones
+        - Aritmética básica
+        - Concepto base
+        - Fórmulas
+        """
+        
+        try:
+            response = self.client.models.generate_content(model=self.model_id, contents=prompt)
+            error_identificado = response.text.strip()
+            return error_identificado[:50] # Limitamos a 50 caracteres para la DB
+        except Exception as e:
+            print(f"❌ Error analizando error: {e}")
+            return "Indeterminado"

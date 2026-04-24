@@ -22,11 +22,12 @@
 
     <main class="examen-container">
         <header class="examen-header">
-            <h1 class="welcome-title" style="color: var(--blossom-purple); font-size: 2.5em;">Examen diagnostico</h1>
-            <p>Responde con sinceridad, este examen nos ayudara a determinar tu nivel actual y crear una ruta de aprendizaje personalizada</p>
+            <h1 class="welcome-title" style="color: var(--blossom-purple); font-size: 2.5em;">Examen Diagnóstico</h1>
+            <p>Este examen evaluará los 12 pilares del Álgebra para diseñar tu ruta personalizada. ¡Tú puedes!</p>
         </header>
 
         <form action="{{ url_for('usuario.procesar_examen') }}" method="POST" class="examen-form">
+            
             {% for pregunta in preguntas %}
             <div class="pregunta-card">
                 <div class="pregunta-header">
@@ -34,6 +35,7 @@
                         <span>{{ loop.index }}</span>
                     </div>
                     <div class="pregunta-texto">
+                        <span class="tema-tag">{{ pregunta.tema }}</span>
                         <p>{{ pregunta.texto }}</p>
                     </div>
                 </div>
@@ -52,43 +54,8 @@
             </div>
             {% endfor %}
 
-                        <div class="pregunta">  
-                <p><strong>1. ¿Qué es el Aprendizaje Supervisado?</strong></p>
-                <input type="radio" name="p1" value="A" required> A) Aprender sin datos etiquetados.<br>
-                <input type="radio" name="p1" value="B"> B) Entrenar un modelo con ejemplos de entrada y salida conocida.<br>
-                <input type="radio" name="p1" value="C"> C) Un tipo de hardware para IA.<br>
-            </div>
-
-            <div class="pregunta">
-                <p><strong>2. ¿Cuál es la función principal de una Red Neuronal?</strong></p>
-                <input type="radio" name="p2" value="A" required> A) Almacenar archivos en la nube.<br>
-                <input type="radio" name="p2" value="B"> B) Reconocer patrones complejos en los datos.<br>
-                <input type="radio" name="p2" value="C"> C) Limpiar virus de la computadora.<br>
-            </div>
-
-            <div class="pregunta">
-                <p><strong>3. ¿Qué significa "Overfitting" o Sobreajuste?</strong></p>
-                <input type="radio" name="p3" value="A" required> A) El modelo memoriza los datos de entrenamiento y falla con datos nuevos.<br>
-                <input type="radio" name="p3" value="B"> B) El modelo es demasiado simple para entender los datos.<br>
-                <input type="radio" name="p3" value="C"> C) Cuando la computadora se calienta mucho.<br>
-            </div>
-
-            <div class="pregunta">
-                <p><strong>4. ¿Qué es un "Prompt"?</strong></p>
-                <input type="radio" name="p4" value="A" required> A) Un error de programación.<br>
-                <input type="radio" name="p4" value="B"> B) La instrucción o texto que se le da a una IA generativa.<br>
-                <input type="radio" name="p4" value="C"> C) Una tarjeta de video potente.<br>
-            </div>
-
-            <div class="pregunta">
-                <p><strong>5. ¿Cuál de estos es un ejemplo de IA Generativa?</strong></p>
-                <input type="radio" name="p5" value="A" required> A) Excel.<br>
-                <input type="radio" name="p5" value="B"> B) ChatGPT.<br>
-                <input type="radio" name="p5" value="C"> C) Calculadora de Windows.<br>
-            </div>
-
-            <div class="footer-examen" style="text-align: center; margin-top: 40px;">
-                <button type="submit" class="submit-btn-wide">Finalizar Examen</button>
+            <div class="footer-examen" style="text-align: center; margin-top: 40px; padding-bottom: 50px;">
+                <button type="submit" class="submit-btn-wide">Finalizar y Ver Mi Ruta</button>
             </div>
     
         </form>

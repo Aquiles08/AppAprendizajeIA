@@ -44,7 +44,7 @@
                 </div>
             </div>
 
-            <form method="POST" action="{{ url_for('usuario.procesar_practica') }}" id="form-practica">
+            <form method="POST" action="{{ url_for('usuario.procesar_practica_json') }}" id="form-practica">
                 <div id="contenedor-ejercicios" class="ejercicios-grid">
                     <div class="ejercicio-card">
                         <p class="ejercicio-enunciado">Cargando ejercicios de IA...</p>
@@ -55,7 +55,7 @@
                 <input type="hidden" name="explicacion" value="{{ ejercicios[0].explicacion }}">
 
                 <div class="submit-practica-container">
-                    <button type="submit" class="submit-btn-wide" id="btn-finalizar">
+                    <button type="button" class="submit-btn-wide" id="btn-finalizar" onclick="finalizarSesion()">
                         Enviar respuestas
                     </button>
                 </div>

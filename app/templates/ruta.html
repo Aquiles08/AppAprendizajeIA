@@ -52,7 +52,9 @@
             <div class="modulo-card">
                 <div class="modulo-info">
                     <h3>{{ modulo.nombre }}</h3>
-                    
+                    <div class="subtemas-lista" style="font-size: 0.8em; color: #666; margin-bottom: 10px;">
+                        <strong>Temas:</strong> {{ modulo.subtemas | join(', ') }}
+                    </div>
                     <div class="progress-wrapper">
                         <div class="progress-bar-container">
                             <div class="progress-fill 
@@ -67,8 +69,14 @@
                 </div>
 
                 <div class="modulo-action">
-                    <a href="{{ url_for('usuario.ruta', id=modulo.id) }}" class="btn-modulo">
-                        {% if modulo.progreso == 100 %}Repasar{% elif modulo.progreso > 0 %}Continuar{% else %}Iniciar{% endif %}
+                    <a href="{{ url_for('usuario.practica', tema_id=modulo.id) }}" class="btn-modulo">
+                        {% if modulo.status == 'completado' %}
+                            Repasar
+                        {% elif modulo.status == 'disponible' %}
+                            Continuar
+                        {% else %}
+                            Iniciar
+                        {% endif %}
                     </a>
                 </div>
             </div>

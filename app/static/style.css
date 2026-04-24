@@ -1714,3 +1714,14 @@ body.blossom-body {
     text-decoration: none;
     font-weight: 600;
 }
+
+.tema-tag {
+    font-size: 0.8em;
+    background-color: #f0e6ff;
+    color: var(--blossom-purple);
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: bold;
+    display: inline-block;
+    margin-bottom: 5px;
+}
