@@ -3,77 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <title>Reporte Individual - {{ alumno.nombre }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <style>
-        .reporte-container { max-width: 900px; margin: 30px auto; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .ficha-alumno { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .grid-info { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
-        .card-skill { padding: 15px; border-radius: 8px; border-left: 5px solid; }
-        .dominada { background: #e8f5e9; border-left-color: #4caf50; }
-        .mejora { background: #fff3e0; border-left-color: #ff9800; }
-        .tiempo-tabla { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        .tiempo-tabla th, .tiempo-tabla td { padding: 12px; border-bottom: 1px solid #eee; text-align: left; }
-        .btn-volver { display: inline-block; margin-top: 20px; text-decoration: none; color: #5e35b1; font-weight: bold; }
-    </style>
 </head>
-<body style="background-color: #f4f7f6;">
-    <div class="reporte-container">
-        <div class="ficha-alumno">
-            <header style="border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 20px;">
-                <h1 style="margin: 0; color: #333;">Ficha de Progreso: {{ alumno.nombre }}</h1>
-                <p style="color: #666; margin: 5px 0;">Nivel Detectado: <strong>{{ alumno.nivel }}</strong></p>
-            </header>
+<body class="body-docente">
 
-            <div class="grid-info">
-                <div class="card-skill dominada">
-                    <h3>🎯 Habilidades Dominadas</h3>
-                    <ul style="padding-left: 20px;">
-                        {% for hab in habilidades.dominadas %}
-                            <li>{{ hab }}</li>
-                        {% else %}
-                            <li style="list-style: none; color: #888;">Aún no hay temas dominados.</li>
-                        {% endfor %}
-                    </ul>
-                </div>
-
-                <div class="card-skill mejora">
-                    <h3>⚠️ Áreas de Oportunidad</h3>
-                    <ul style="padding-left: 20px;">
-                        {% for hab in habilidades.por_mejorar %}
-                            <li>{{ hab }}</li>
-                        {% else %}
-                            <li style="list-style: none; color: #888;">¡No hay áreas críticas detectadas!</li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            </div>
-
-            <div style="margin-top: 30px;">
-                <h3>🕒 Inversión de Tiempo por Tema</h3>
-                <table class="tiempo-tabla">
-                    <thead>
-                        <tr style="background: #f8f9fa;">
-                            <th>Tema</th>
-                            <th>Tiempo Total (Minutos)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for t in tiempos %}
-                        <tr>
-                            <td>{{ t.tema }}</td>
-                            <td><strong>{{ t.minutos }} min</strong></td>
-                        </tr>
-                        {% else %}
-                        <tr>
-                            <td colspan="2" style="text-align: center; color: #888;">No hay registros de tiempo aún.</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-
-            <a href="{{ url_for('usuario.dashboard_docente') }}" class="btn-volver">← Volver al Panel Grupal</a>
+    <header class="main-header">
+        <div class="logo">
+            <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Blossom Logo">
         </div>
-    </div>
+        <div class="header-right">
+            <a href="{{ url_for('usuario.dashboard_docente') }}" class="btn-inicio-docente">Inicio</a>
+        </div>
+    </header>
+
+    <main class="dashboard-container">
+        
+        <section class="ficha-reporte-card">
+            <div class="ficha-header">
+                <h1 class="ficha-title">Ficha de Progreso: <span>{{ alumno.nombre }}</span></h1>
+                <p class="ficha-subtitle">Nivel: {{ alumno.nivel or 'Pendiente' }}</p>
+            </div>
+
+            <div class="ficha-content-grid">
+                
+                <div class="skills-column">
+                    <div class="skill-box box-dominada">
+                        <h3>🎯 Habilidades Dominadas</h3>
+                        <div class="skill-list">
+                            {% for hab in habilidades.dominadas %}
+                                <p>{{ hab }}</p>
+                            {% else %}
+                                <p class="empty-text">Aún no hay temas dominados.</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="skill-box box-oportunidad">
+                        <h3>⚠️ Áreas de Oportunidad</h3>
+                        <div class="skill-list">
+                            {% for hab in habilidades.por_mejorar %}
+                                <p>{{ hab }}</p>
+                            {% else %}
+                                <p class="empty-text">¡No hay áreas críticas detectadas!</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="time-column">
+                    <h3 class="time-title">Inversión de Tiempo por tema</h3>
+                    <div class="table-time-wrapper">
+                        <table class="styled-table-individual">
+                            <thead>
+                                <tr>
+                                    <th>Tema</th>
+                                    <th>Tiempo Total (Minutos)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for t in tiempos %}
+                                <tr>
+                                    <td>{{ t.tema }}</td>
+                                    <td>{{ t.minutos }} min</td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="2" class="empty-text">No hay registros de tiempo aún.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
 </body>
 </html>

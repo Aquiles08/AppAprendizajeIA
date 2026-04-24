@@ -1725,3 +1725,248 @@ body.blossom-body {
     display: inline-block;
     margin-bottom: 5px;
 }
+
+/* Colores de Marca Blossom */
+:root {
+    --blossom-pastel: #B39DDB;
+    --border-purple: #7d3db5;
+}
+
+/* Header Ajustes */
+.header-right { display: flex; align-items: center; gap: 20px; }
+.logout-btn-top {
+    border: 2px solid #ff4d4d;
+    color: #ff4d4d;
+    padding: 8px 18px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: 0.3s;
+}
+.logout-btn-top:hover { background: #ff4d4d; color: white; }
+
+/* Banner Docente */
+.docente-banner {
+    background: linear-gradient(90deg, blossom-purple 0%, #d870ad 100%) !important;
+    border-radius: 15px !important;
+    padding: 30px !important;
+}
+
+/* Gráficas Row */
+.charts-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin: 30px 0;
+}
+
+.chart-container-card {
+    border: 3px solid var(--border-purple);
+    border-radius: 25px;
+    padding: 20px;
+    background: white;
+}
+
+.chart-title {
+    color: var(--blossom-purple);
+    font-weight: bold;
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+}
+
+.canvas-wrapper { height: 250px; }
+
+/* Tabla Estudiantes Activos */
+.table-card-docente {
+    border: 3px solid var(--border-purple);
+    border-radius: 25px;
+    padding: 0 !important; /* Para que el título quede dentro pero limpio */
+    overflow: hidden;
+}
+
+.table-title {
+    color: var(--blossom-purple);
+    font-weight: bold;
+    font-size: 1.8rem;
+    padding: 20px 0 0 25px;
+}
+
+.docente-table { width: 100%; border: none !important; }
+.docente-table th { border-bottom: 2px solid #eee !important; color: #555 !important; font-size: 1.1rem; }
+
+.link-reporte {
+    color: var(--blossom-purple);
+    text-decoration: underline;
+    font-weight: bold;
+}
+
+/* Botón Inicio estilo cápsula morada */
+.btn-inicio-docente {
+    border: 2px solid var(--blossom-purple);
+    color: var(--blossom-purple);
+    padding: 5px 25px;
+    border-radius: 20px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.btn-inicio-docente:hover {
+    background: var(--blossom-purple);
+    color: white;
+}
+
+/* Contenedor Principal de la Ficha */
+.ficha-reporte-card {
+    border: 3px solid var(--border-purple);
+    border-radius: 25px;
+    background: white;
+    padding: 0;
+    overflow: hidden;
+    margin-top: 20px;
+}
+
+.ficha-header {
+    padding: 20px 25px;
+    border-bottom: 2px solid var(--border-purple);
+}
+
+.ficha-title {
+    color: var(--blossom-purple);
+    font-size: 2.2rem;
+    margin: 0;
+}
+
+.ficha-subtitle {
+    color: #555;
+    font-size: 1.2rem;
+    margin: 5px 0 0 0;
+}
+
+/* Grid de contenido */
+.ficha-content-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 30px;
+    padding: 30px;
+}
+
+/* Cajas de Habilidades */
+.skill-box {
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 25px;
+    border-left: 8px solid;
+}
+
+.box-dominada {
+    background-color: #f0f9f1; /* Verde muy clarito */
+    border-left-color: #4caf50;
+}
+
+.box-oportunidad {
+    background-color: #fff8f0; /* Naranja muy clarito */
+    border-left-color: #ff9800;
+}
+
+.skill-box h3 {
+    font-size: 1.1rem;
+    margin-top: 0;
+}
+
+.empty-text {
+    color: #999;
+    font-style: italic;
+}
+
+/* Columna de Tiempo */
+.time-title {
+    color: var(--blossom-purple);
+    text-align: right;
+    font-size: 1.8rem;
+    margin-top: 0;
+}
+
+.table-time-wrapper {
+    background: #f5f5f5;
+    border-radius: 20px;
+    overflow: hidden;
+    padding: 10px;
+}
+
+.styled-table-individual {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.styled-table-individual thead th {
+    text-align: left;
+    padding: 15px;
+    font-size: 1.2rem;
+    border-bottom: 2px solid #ddd;
+}
+
+.styled-table-individual tbody td {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+    font-size: 1.1rem;
+}
+
+.page-title-purple {
+    color: var(--blossom-purple);
+    font-size: 2.5rem;
+    margin-bottom: 30px;
+}
+
+.reporte-grupal-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 50px;
+}
+
+/* Card de la Tabla de Conteo (Estilo imagen) */
+.conteo-niveles-card {
+    border: 3px solid var(--border-purple);
+    border-radius: 20px;
+    width: 400px;
+    background: white;
+    overflow: hidden;
+}
+
+.conteo-header {
+    padding: 15px 20px;
+    border-bottom: 3px solid var(--border-purple);
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.table-conteo-body {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table-conteo-body td {
+    padding: 15px 20px;
+    font-size: 1.2rem;
+    border-bottom: 2px solid var(--border-purple);
+}
+
+.label-nivel { font-weight: bold; border-right: 3px solid var(--border-purple); width: 60%; }
+.value-nivel { text-align: center; }
+.no-border td { border-bottom: none !important; }
+
+/* Contenedor Gráfica */
+.chart-distribucion-wrapper { flex: 1; text-align: center; }
+.chart-mini-title { color: var(--blossom-purple); font-size: 1.8rem; margin-bottom: 20px; }
+.canvas-pie-container { height: 300px; position: relative; }
+
+/* Badges */
+.badge-status {
+    padding: 5px 12px;
+    border-radius: 15px;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+.badge-status.experto { background: #e8f5e9; color: #2e7d32; }
+.badge-status.principiante { background: #fff3e0; color: #ef6c00; }

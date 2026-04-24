@@ -1,53 +1,87 @@
-<main class="docente-container">
-    <header class="docente-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <div>
-            <h1>Panel de Control Docente - Blossom</h1>
-            <p>Bienvenido, {{ session['usuario_nombre'] }}</p>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Panel Docente - Blossom</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="body-docente">
+
+    <header class="main-header">
+        <div class="logo">
+            <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Blossom Logo">
         </div>
-        <div class="logout-container">
-            <a href="{{ url_for('usuario.logout') }}" class="btn-logout" style="color: #d9534f; text-decoration: none; font-weight: bold; border: 1px solid #d9534f; padding: 8px 15px; border-radius: 5px;">
-                🚪 Cerrar Sesión
-            </a>
+        <div class="header-right">
+            <div class="user-avatar-header">
+                <div class="avatar-circle-sm">
+                    <span>{{ session['usuario_nombre'][0] | upper }}</span>
+                </div>
+                <span class="user-name-header">{{ session['usuario_nombre'] }}</span>
+            </div>
+            <a href="{{ url_for('usuario.logout') }}" class="logout-btn-top">Cerrar Sesión</a>
         </div>
     </header>
-    
-    <div class="nav-docente" style="margin-bottom: 25px; display: flex; gap: 15px;">
-        <a href="{{ url_for('usuario.dashboard_docente') }}" style="padding: 10px 20px; background: #5e35b1; color: white; border-radius: 5px; text-decoration: none;">
-            🏠 Inicio (Gráficas)
-        </a>
-        <a href="{{ url_for('usuario.reporte_grupal') }}" style="padding: 10px 20px; background: #fff; color: #5e35b1; border: 1px solid #5e35b1; border-radius: 5px; text-decoration: none;">
-            📊 Estadísticas Grupales
-        </a>
-    </div>
 
-    <div class="grid-docente" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+    <main class="dashboard-container">
         
-        <section class="card-docente" style="grid-column: span 2; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-            <h2>Estudiantes Activos</h2>
-            <div class="tabla-scroll">
-                <table class="blossom-table" style="width: 100%; border-collapse: collapse;">
+        <section class="welcome-banner docente-banner">
+            <div class="banner-text">
+                <h1>Panel de control docente</h1>
+                <p>Bienvenido, "{{ session['usuario_nombre'] }}"</p>
+            </div>
+        </section>
+
+        <div class="charts-row">
+            <div class="chart-container-card">
+                <h3 class="chart-title">Promedio de calificación por tema</h3>
+                <div class="canvas-wrapper">
+                    <canvas id="graficaPromedios" 
+                            data-labels='{{ labels_temas | tojson }}' 
+                            data-valores='{{ valores_temas | tojson }}'></canvas>
+                </div>
+            </div>
+
+            <div class="chart-container-card">
+                <h3 class="chart-title">Detección de errores frecuentes</h3>
+                <div class="canvas-wrapper">
+                    <canvas id="graficaErrores" 
+                            data-labels='{{ labels_errores | tojson }}' 
+                            data-valores='{{ valores_errores | tojson }}'></canvas>
+                </div>
+            </div>
+        </div>
+
+        <section class="activity-section table-card-docente">
+            <div class="table-header-flex" style="display: flex; justify-content: space-between; align-items: center; padding: 20px 25px 10px 25px;">
+                <h3 class="table-title" style="padding: 0; margin: 0;">Estudiantes Activos</h3>
+                <a href="{{ url_for('usuario.reporte_grupal') }}" class="btn-inicio-docente" style="font-size: 0.9rem;">
+                    Estadísticas Grupales
+                </a>
+            </div>
+            <div class="table-wrapper">
+                <table class="styled-table-dash docente-table">
                     <thead>
-                        <tr style="border-bottom: 2px solid #eee;">
+                        <tr>
                             <th>Estudiante</th>
                             <th>Correo</th>
                             <th>Nivel</th>
-                            <th>Acción</th>
+                            <th>Reporte Individual</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for alumno in alumnos %}
-                        <tr style="border-bottom: 1px solid #eee;">
+                        <tr>
                             <td>{{ alumno.nombre }}</td>
                             <td>{{ alumno.correo }}</td>
-                            <td><span class="badge" style="background: #e3f2fd; padding: 4px 8px; border-radius: 4px;">{{ alumno.nivel }}</span></td>
+                            <td>{{ alumno.nivel or 'Sin nivel' }}</td>
                             <td>
-                                <a href="{{ url_for('usuario.reporte_estudiante', id_estudiante=alumno.id_usuario) }}" 
-                                   class="btn-ver" style="color: #2196F3; font-weight: bold;">Ver Reportes</a>
+                                <a href="{{ url_for('usuario.reporte_estudiante', id_estudiante=alumno.id_usuario) }}" class="link-reporte">Ver Reporte</a>
                             </td>
                         </tr>
                         {% else %}
                         <tr>
-                            <td colspan="4">No hay estudiantes registrados aún.</td>
+                            <td colspan="4" style="text-align: center;">No hay alumnos registrados.</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -55,61 +89,59 @@
             </div>
         </section>
 
-        <section class="card-docente" style="background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-            <h2>Promedio de Calificaciones por Tema</h2>
-            <canvas id="graficaPromedios" 
-                    data-labels='{{ labels_temas | tojson }}' 
-                    data-valores='{{ valores_temas | tojson }}'></canvas>
-        </section>
+    </main>
 
-        <section class="card-docente" style="background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-            <h2>Detección de Errores Frecuentes</h2>
-            <canvas id="graficaErrores" 
-                    data-labels='{{ labels_errores | tojson }}' 
-                    data-valores='{{ valores_errores | tojson }}'></canvas>
-        </section>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Colores Morado Pastel
+        const purplePastel = '#B39DDB';
+        const purplePastelHover = '#9575CD';
+        const multiPastels = ['#B39DDB', '#81D4FA', '#A5D6A7', '#FFF59D', '#FFAB91'];
 
-    </div>
-</main>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    // 1. Gráfica de Barras (Promedios)
-    const canvasPromedios = document.getElementById('graficaPromedios');
-    const labelsTemas = JSON.parse(canvasPromedios.dataset.labels || '[]');
-    const valoresTemas = JSON.parse(canvasPromedios.dataset.valores || '[]');
-    
-    if (labelsTemas.length > 0) {
+        // 1. Gráfica de Barras
+        const canvasPromedios = document.getElementById('graficaPromedios');
         new Chart(canvasPromedios, {
             type: 'bar',
             data: {
-                labels: labelsTemas,
+                labels: JSON.parse(canvasPromedios.dataset.labels || '[]'),
                 datasets: [{
                     label: 'Calificación Promedio',
-                    data: valoresTemas,
-                    backgroundColor: '#4e73df',
-                    borderWidth: 1
+                    data: JSON.parse(canvasPromedios.dataset.valores || '[]'),
+                    backgroundColor: purplePastel,
+                    borderRadius: 5,
+                    borderWidth: 0
                 }]
             },
-            options: { scales: { y: { beginAtZero: true, max: 100 } } }
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, max: 100, grid: { display: false } },
+                    x: { grid: { display: false } }
+                }
+            }
         });
-    }
 
-    // 2. Gráfica de Pastel (Errores)
-    const canvasErrores = document.getElementById('graficaErrores');
-    const labelsErrores = JSON.parse(canvasErrores.dataset.labels || '[]');
-    const valoresErrores = JSON.parse(canvasErrores.dataset.valores || '[]');
-    
-    if (labelsErrores.length > 0) {
+        // 2. Gráfica de Pastel
+        const canvasErrores = document.getElementById('graficaErrores');
         new Chart(canvasErrores, {
             type: 'pie',
             data: {
-                labels: labelsErrores,
+                labels: JSON.parse(canvasErrores.dataset.labels || '[]'),
                 datasets: [{
-                    data: valoresErrores,
-                    backgroundColor: ['#e74c3c', '#f1c40f', '#3498db', '#9b59b6', '#2ecc71']
+                    data: JSON.parse(canvasErrores.dataset.valores || '[]'),
+                    backgroundColor: multiPastels,
+                    borderWidth: 2,
+                    borderColor: '#ffffff'
                 }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'right' } }
             }
         });
-    }
-</script>
+    </script>
+</body>
+</html>
