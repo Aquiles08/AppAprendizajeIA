@@ -58,7 +58,6 @@ def login():
 @usuario_bp.route("/registrar")
 def registro():
     return render_template("registro.html")
-
 # --- Crear Cuenta ---
 @usuario_bp.route("/crear_cuenta", methods=["POST"])
 def crear_cuenta():
@@ -508,7 +507,7 @@ def tutor():
         datos = request.get_json()
         pregunta_usuario = datos.get("mensaje")
 
-        # 1. Guardar lo que escribió Gael
+        # 1. Guardar lo que escribió 
         nuevo_msj = HistorialTutor(usuario_id=u_id, contenido=pregunta_usuario, es_bot=False)
         db.session.add(nuevo_msj)
 
@@ -554,7 +553,7 @@ def logout():
     return redirect(url_for('usuario.login'))
 
 
-# --- RUTAS DEL DASHBOARD DOCENTE ---
+# --- RUTAS DEL DOCENTE ---
 
 # --- Dashboard Docente ---
 @usuario_bp.route("/dashboard_docente")
@@ -638,13 +637,15 @@ def reporte_grupal():
     
     # Análisis de niveles
     expertos = Usuario.query.filter_by(tipo_usuario='Estudiante', nivel='Experto').count()
+    intermedios = Usuario.query.filter_by(tipo_usuario='Estudiante', nivel='Intermedio').count()
     principiantes = Usuario.query.filter_by(tipo_usuario='Estudiante', nivel='Principiante').count()
     
     stats_data = {
         'total': len(alumnos),
         'expertos': expertos,
+        'intermedios': intermedios,
         'principiantes': principiantes,
-        'pendientes': len(alumnos) - (expertos + principiantes)
+        'pendientes': len(alumnos) - (expertos + intermedios + principiantes)
     }
     
     return render_template("reportes.html", alumnos=alumnos, stats=stats_data)

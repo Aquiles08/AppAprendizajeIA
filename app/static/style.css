@@ -1970,3 +1970,41 @@ body.blossom-body {
 }
 .badge-status.experto { background: #e8f5e9; color: #2e7d32; }
 .badge-status.principiante { background: #fff3e0; color: #ef6c00; }
+
+/* --- AJUSTES PARA MÓVILES (Media Query) --- */
+@media (max-width: 768px) {
+    
+    /* 1. Header: El nombre del usuario desaparece o se encoge para dar espacio */
+    .user-name-header {
+        display: none; 
+    }
+
+    /* 2. Banner: Reducimos el tamaño de la letra para que no ocupe toda la pantalla */
+    .welcome-banner h1 {
+        font-size: 1.5rem;
+    }
+
+    /* 3. Dashboard: Las gráficas ya no van de a dos, sino una por fila */
+    .charts-row, .reporte-grupal-flex, .ficha-content-grid {
+        display: flex;
+        flex-direction: column; /* Apila los elementos verticalmente */
+        gap: 20px;
+    }
+
+    /* 4. Tablas: Las tablas suelen romperse en móvil. 
+       Hacemos que el contenedor tenga scroll lateral */
+    .table-wrapper {
+        overflow-x: auto;
+        display: block;
+        width: 100%;
+    }
+
+    /* 5. Ficha Individual y Reporte Grupal */
+    .conteo-niveles-card {
+        width: 100%; /* La tabla de conteo ocupa todo el ancho en móvil */
+    }
+
+    .canvas-pie-container, .canvas-wrapper {
+        height: 200px; /* Reducimos altura para que no sea eterno el scroll */
+    }
+}
