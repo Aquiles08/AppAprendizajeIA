@@ -119,15 +119,13 @@ def dashboard():
     
     # Objetivo: Mostrar estadísticas reales del usuario en el dashboard 
     user = Usuario.query.get(u_id)  
-    historial = ProgresoUsuario.query.filter_by(usuario_id=u_id).order_by(ProgresoUsuario.fecha.desc()).limit(5).all()
+    resumen = UsuarioService.obtener_resumen_progreso(u_id)
     
-    total_ejercicios = sum(p.ejercicios_realizados for p in historial)
-    total_aciertos = sum(p.aciertos for p in historial)
-    
-    return render_template("dashboard.html", user=user, 
-                           historial=historial, 
-                           total_ejercicios=total_ejercicios, 
-                           total_aciertos=total_aciertos)
+    return render_template("dashboard.html", 
+                           user=user, 
+                           historial=resumen['historial'], 
+                           total_ejercicios=resumen['total_ejercicios'], 
+                           total_aciertos=resumen['total_aciertos'])
 
 #--- Examen ---
 @usuario_bp.route("/examen")
@@ -509,6 +507,7 @@ def tutor():
             # 3. Guardar lo que respondió el Robot en la DB
             respuesta_bot = HistorialTutor(usuario_id=u_id, contenido=respuesta_ia, es_bot=True)
             db.session.add(respuesta_bot)
+
             db.session.commit() # Guardamos la conversación completa
             
             return jsonify({"respuesta": respuesta_ia})
@@ -592,11 +591,26 @@ def dashboard_docente():
 
     # 2. Promedio de calificaciones por tema (Para Gráfica de Barras)
     stats_temas = db.session.query(
-        ProgresoTema.nombre_tema,
-        db.func.avg(ProgresoTema.puntuacion_max).label('promedio')
-    ).group_by(ProgresoTema.nombre_tema).all()
+        ProgresoUsuario.id_tema, # Cambiamos a la tabla que sí tiene datos
+        db.func.avg((ProgresoUsuario.aciertos / ProgresoUsuario.ejercicios_realizados) * 100).label('promedio')
+    ).group_by(ProgresoUsuario.id_tema).all()
 
-    labels_temas = [s.nombre_tema for s in stats_temas]
+    mapa_temas = {
+        1: "Fundamentos del Álgebra",
+        2: "Lenguaje Algebraico",
+        3: "Operaciones con Polinomios",
+        4: "Factorización",
+        5: "Ecuaciones de Primer Grado",
+        6: "Sistemas de Ecuaciones",
+        7: "Ecuaciones de Segundo Grado",
+        8: "Desigualdades",
+        9: "Funciones",
+        10: "Exponentes y Radicales",
+        11: "Expresiones Racionales",
+        12: "Logaritmos"
+    }
+
+    labels_temas = [mapa_temas.get(s[0], f"Tema {s[0]}") for s in stats_temas]
     valores_temas = [round(float(s.promedio), 2) for s in stats_temas]
 
     # 3. Detección de Errores Frecuentes (Para Gráfica de Pastel)
@@ -627,26 +641,59 @@ def reporte_estudiante(id_estudiante):
 
     alumno = Usuario.query.get_or_404(id_estudiante)
     
-    # 1. Habilidades (Basado en puntuación_max de progreso_tema)
-    progresos = ProgresoTema.query.filter_by(id_usuario=id_estudiante).all()
-    habilidades = {
-        'dominadas': [p.nombre_tema for p in progresos if p.puntuacion_max >= 85],
-        'por_mejorar': [p.nombre_tema for p in progresos if p.puntuacion_max < 65 and p.estado != 'Bloqueado']
+    practicas = ProgresoUsuario.query.filter_by(usuario_id=id_estudiante).all()
+    
+    # --- IMPORTANTE: Inicializamos el diccionario ---
+    temas_stats = {} 
+    
+    mapa_temas = {
+        1: "Fundamentos del Álgebra",
+        2: "Lenguaje Algebraico",
+        3: "Operaciones con Polinomios",
+        4: "Factorización",
+        5: "Ecuaciones de Primer Grado",
+        6: "Sistemas de Ecuaciones",
+        7: "Ecuaciones de Segundo Grado",
+        8: "Desigualdades",
+        9: "Funciones",
+        10: "Exponentes y Radicales",
+        11: "Expresiones Racionales",
+        12: "Logaritmos"
     }
 
-    # 2. Tiempo dedicado (Sumatoria de segundos de la tabla progreso_usuario)
-    tiempos_query = db.session.query(
-        ProgresoTema.nombre_tema,
-        db.func.sum(ProgresoUsuario.tiempo_segundos).label('total_segundos')
-    ).join(ProgresoUsuario, (ProgresoUsuario.id_tema == ProgresoTema.id_tema) & (ProgresoUsuario.usuario_id == id_estudiante))\
-     .group_by(ProgresoTema.nombre_tema).all()
+    for p in practicas:
+        nombre_tema = mapa_temas.get(p.id_tema, f"Tema {p.id_tema}")
+        
+        if nombre_tema not in temas_stats:
+            temas_stats[nombre_tema] = {'scores': [], 'tiempo': 0}
+        
+        porcentaje = (p.aciertos / p.ejercicios_realizados * 100) if p.ejercicios_realizados > 0 else 0
+        temas_stats[nombre_tema]['scores'].append(porcentaje)
+        temas_stats[nombre_tema]['tiempo'] += (p.tiempo_segundos or 0)
 
+    dominadas = []
+    por_mejorar = []
     reporte_tiempo = []
-    for t in tiempos_query:
-        minutos = round((t.total_segundos or 0) / 60, 1)
-        reporte_tiempo.append({'tema': t.nombre_tema, 'minutos': minutos})
 
-    # Renderizamos la plantilla individual específica
+    for tema, data in temas_stats.items():
+        # Quitamos la línea de 'nombre_real' que sobraba y causaba error
+        promedio = sum(data['scores']) / len(data['scores'])
+        
+        if promedio >= 80:
+            dominadas.append(tema)
+        elif promedio < 70:
+            por_mejorar.append(tema)
+            
+        reporte_tiempo.append({
+            'tema': tema, 
+            'minutos': round(data['tiempo'] / 60, 1)
+        })
+
+    habilidades = {
+        'dominadas': dominadas,
+        'por_mejorar': por_mejorar
+    }
+
     return render_template("reporte_individual.html", 
                            alumno=alumno, 
                            habilidades=habilidades, 

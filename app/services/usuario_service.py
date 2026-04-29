@@ -23,9 +23,18 @@ class UsuarioService:
     # Si después tienes una tabla 'temas', aquí harías un: Tema.query.filter_by(nombre=tema).first()
     
         mapa_temas = {
-            "Ecuaciones de Primer Grado": 1,
-            "Sistemas de Ecuaciones": 2,
-            "Operaciones Básicas": 3
+        1: "Fundamentos del Álgebra",
+        2: "Lenguaje Algebraico",
+        3: "Operaciones con Polinomios",
+        4: "Factorización",
+        5: "Ecuaciones de Primer Grado",
+        6: "Sistemas de Ecuaciones",
+        7: "Ecuaciones de Segundo Grado",
+        8: "Desigualdades",
+        9: "Funciones",
+        10: "Exponentes y Radicales",
+        11: "Expresiones Racionales",
+        12: "Logaritmos"
         }
     
     # Obtenemos el ID, si no existe el tema en el mapa, le ponemos 1 por defecto
