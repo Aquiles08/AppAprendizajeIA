@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Perfil - Blossom</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body class="blossom-body">
+
+    <header class="main-header">
+        <div class="logo">
+            <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Blossom Logo">
+        </div>
+        <div class="user-actions-header">
+            <a href="{{ url_for('usuario.dashboard') }}" class="btn-inicio-small">Volver al Inicio</a>
+        </div>
+    </header>
+
+    <main class="perfil-container">
+        <div class="perfil-grid">
+            
+            <aside class="perfil-sidebar">
+                <div class="perfil-card-identity">
+                    <div class="avatar-circle-xl">
+                        <span>{{ session['usuario_nombre'][0] | upper }}</span>
+                    </div>
+                    <h2 class="perfil-username">{{ session['usuario_nombre'] }}</h2>
+                    <p class="perfil-role">Estudiante Blossom</p>
+                    <div class="level-badge-large">
+                        {{ user.nivel if user.nivel else 'Intermedio' }}
+                    </div>
+                </div>
+
+                <div class="perfil-card-info">
+                    <h3>Información</h3>
+                    <p><strong>Correo:</strong><br> {{ user.correo if user.correo else 'usuario@correo.com' }}</p>
+                    <p><strong>Miembro desde:</strong><br> 2026</p>
+                </div>
+            </aside>
+
+            <section class="perfil-main-content">
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                <script>
+                    // Esperar 5 segundos y luego desvanecer la alerta
+                    setTimeout(function() {
+                        let alerts = document.querySelectorAll('.alert');
+                        alerts.forEach(alert => {
+                            alert.style.transition = "opacity 0.5s ease";
+                            alert.style.opacity = "0";
+                            setTimeout(() => alert.remove(), 500);
+                        });
+                    }, 5000);
+                </script>
+                
+                <div class="perfil-card-settings">
+                    <h3 class="settings-title">Configuración de Tutoría IA</h3>
+                    <p class="settings-subtitle">Personaliza cómo interactúa la IA contigo en las prácticas.</p>
+                    
+                    <form action="{{ url_for('usuario.actualizar_perfil') }}" method="POST" class="perfil-form">
+                        <div class="form-group">
+                            <label for="tutor-mode">Personalidad del Tutor:</label>
+                            <select id="tutor-mode" name="tutor_mode" class="custom-select-perfil">
+                                <option value="paciente" {% if user.tutor_mode == 'paciente' %}selected{% endif %}>Paciente (Paso a paso detallado)</option>
+                                <option value="directo" {% if user.tutor_mode == 'directo' %}selected{% endif %}>Directo (Conceptos clave y solución)</option>
+                                <option value="retador" {% if user.tutor_mode == 'retador' %}selected{% endif %}>Retador (Pistas antes que respuestas)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Áreas de enfoque prioritario (Temario Álgebra):</label>
+                            <div class="checkbox-grid" style="grid-template-columns: 1fr 1fr; font-size: 0.9em;">
+                                <label><input type="checkbox" name="temas" value="Fundamentos" {% if 'Fundamentos' in user.enfoque_temas %}checked{% endif %}> 1. Fundamentos</label>
+                                <label><input type="checkbox" name="temas" value="Lenguaje Algebraico" {% if 'Lenguaje Algebraico' in user.enfoque_temas %}checked{% endif %}> 2. Lenguaje Algebraico</label>
+                                <label><input type="checkbox" name="temas" value="Polinomios" {% if 'Polinomios' in user.enfoque_temas %}checked{% endif %}> 3. Polinomios</label>
+                                <label><input type="checkbox" name="temas" value="Factorización" {% if 'Factorización' in user.enfoque_temas %}checked{% endif %}> 4. Factorización</label>
+                                <label><input type="checkbox" name="temas" value="Ecuaciones 1er Grado" {% if 'Ecuaciones 1er Grado' in user.enfoque_temas %}checked{% endif %}> 5. Ecuaciones 1°</label>
+                                <label><input type="checkbox" name="temas" value="Sistemas Ecuaciones" {% if 'Sistemas Ecuaciones' in user.enfoque_temas %}checked{% endif %}> 6. Sistemas Ec.</label>
+                                <label><input type="checkbox" name="temas" value="Ecuaciones 2do Grado" {% if 'Ecuaciones 2do Grado' in user.enfoque_temas %}checked{% endif %}> 7. Ecuaciones 2°</label>
+                                <label><input type="checkbox" name="temas" value="Desigualdades" {% if 'Desigualdades' in user.enfoque_temas %}checked{% endif %}> 8. Desigualdades</label>
+                                <label><input type="checkbox" name="temas" value="Funciones" {% if 'Funciones' in user.enfoque_temas %}checked{% endif %}> 9. Funciones</label>
+                                <label><input type="checkbox" name="temas" value="Exponentes y Radicales" {% if 'Exponentes y Radicales' in user.enfoque_temas %}checked{% endif %}> 10. Exponentes</label>
+                                <label><input type="checkbox" name="temas" value="Expresiones Racionales" {% if 'Expresiones Racionales' in user.enfoque_temas %}checked{% endif %}> 11. Racionales</label>
+                                <label><input type="checkbox" name="temas" value="Logaritmos" {% if 'Logaritmos' in user.enfoque_temas %}checked{% endif %}> 12. Logaritmos</label>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-guardar-local">Guardar Preferencias</button>
+                    </form>
+                </div>
+
+                <div class="perfil-card-danger">
+                    <h3>Seguridad de la Cuenta</h3>
+                    <div class="danger-actions">
+                        <button class="btn-outline-danger">Cambiar Contraseña</button>
+                        <a href="{{ url_for('usuario.logout') }}" class="logout-link-perfil">Cerrar Sesión</a>
+                    </div>
+                </div>
+
+            </section>
+        </div>
+    </main>
+
+</body>
+</html>

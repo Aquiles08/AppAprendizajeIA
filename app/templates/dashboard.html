@@ -44,7 +44,7 @@
             <a href="{{ url_for('usuario.practica') }}" class="nav-button">Práctica</a>
             <a href="{{ url_for('usuario.progreso') }}" class="nav-button">Progreso</a>
             <a href="{{ url_for('usuario.tutor') }}" class="nav-button">Tutor IA</a>
-            <div class="nav-button placeholder-button">Perfil</div>
+            <a href="{{ url_for('usuario.perfil') }}" class="nav-button">Perfil</a>
         </section>
 
         <div class="stats-grid" style="margin-top: 30px;">
@@ -83,10 +83,6 @@
                 </tbody>
             </table>
         </section>
-
-        <div class="logout-container">
-            <a href="{{ url_for('usuario.logout') }}" class="logout-link">Cerrar sesión</a>
-        </div>
     </main>
 </body>
 </html>

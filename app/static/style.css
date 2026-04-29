@@ -2016,3 +2016,185 @@ body.blossom-body {
 
 .status-badge h2 { font-family: 'Quicksand', sans-serif; font-weight: 700; margin-bottom: 5px; }
 .status-badge p { margin: 0; font-size: 1.1em; }
+
+/* --- ESTILOS PERFIL --- */
+.perfil-container {
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.perfil-grid {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 30px;
+}
+
+.perfil-sidebar, .perfil-main-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Tarjetas del Perfil */
+.perfil-card-identity, .perfil-card-info, .perfil-card-settings, .perfil-card-danger {
+    background: white;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    text-align: center;
+}
+
+.perfil-card-settings { text-align: left; }
+
+/* Avatar XL */
+.avatar-circle-xl {
+    width: 120px;
+    height: 120px;
+    background: linear-gradient(135deg, #8c52ff, #6d2bce);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    font-size: 3em;
+    color: white;
+    font-weight: bold;
+    border: 5px solid #f0eaff;
+}
+
+.level-badge-large {
+    display: inline-block;
+    background: #8c52ff;
+    color: white;
+    padding: 8px 20px;
+    border-radius: 50px;
+    font-weight: bold;
+    margin-top: 15px;
+}
+
+/* Formulario Perfil */
+.custom-select-perfil {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: 2px solid #eee;
+    font-family: 'Quicksand', sans-serif;
+    margin-top: 10px;
+}
+
+.checkbox-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.btn-outline-danger {
+    background: transparent;
+    border: 2px solid #ff4d4d;
+    color: #ff4d4d;
+    padding: 10px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.btn-outline-danger:hover {
+    background: #ff4d4d;
+    color: white;
+}
+
+@media (max-width: 768px) {
+    .perfil-grid { grid-template-columns: 1fr; }
+}
+
+.checkbox-temario-container {
+    background: #f9f7ff;
+    padding: 15px;
+    border-radius: 12px;
+    border: 1px solid #e0d5ff;
+    margin-top: 10px;
+    max-height: 250px; /* Evita que crezca demasiado */
+    overflow-y: auto;  /* Scroll interno si es necesario */
+}
+
+.checkbox-grid-full {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Dos columnas */
+    gap: 10px;
+}
+
+.checkbox-grid-full label {
+    font-size: 0.85em;
+    color: #444;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.checkbox-grid-full input[type="checkbox"] {
+    accent-color: #8c52ff; /* Tu color morado */
+    width: 16px;
+    height: 16px;
+}
+
+.settings-label {
+    font-weight: bold;
+    color: var(--blossom-purple);
+    display: block;
+    margin-bottom: 5px;
+}
+
+.alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    font-weight: bold;
+    text-align: center;
+    animation: fadeIn 0.5s ease-in;
+}
+
+.alert-success {
+    background-color: #f0eaff; /* Morado muy claro */
+    color: #6d2bce; /* Tu morado fuerte */
+    border: 1px solid #8c52ff;
+}
+
+.alert-error {
+    background-color: #ffebeb;
+    color: #ff4d4d;
+    border: 1px solid #ff4d4d;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Contenedor de alertas */
+.alert {
+    padding: 15px;
+    margin: 10px 0 20px 0;
+    border-radius: 8px;
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 700;
+    text-align: center;
+    border: 1px solid transparent;
+}
+
+/* Estilo para el éxito (Color Morado Blossom) */
+.alert-success {
+    background-color: #f3ebff; /* Un morado muy clarito */
+    color: #6d2bce;           /* Tu morado fuerte */
+    border-color: #8c52ff;    /* Tu morado principal */
+}
+
+/* Estilo para el error */
+.alert-error {
+    background-color: #ffebeb;
+    color: #ff4d4d;
+    border-color: #ff4d4d;
+}
