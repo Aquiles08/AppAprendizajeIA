@@ -38,7 +38,16 @@
             </div>
         </section>
 
-        <div class="stats-grid">
+        <section class="navigation-grid" style="margin-top: 30px;">
+            <a href="{{ url_for('usuario.examen') }}" class="nav-button">Examen diagnóstico</a>
+            <a href="{{ url_for('usuario.ruta') }}" class="nav-button">Rutas de aprendizaje</a>
+            <a href="{{ url_for('usuario.practica') }}" class="nav-button">Práctica</a>
+            <a href="{{ url_for('usuario.progreso') }}" class="nav-button">Progreso</a>
+            <a href="{{ url_for('usuario.tutor') }}" class="nav-button">Tutor IA</a>
+            <div class="nav-button placeholder-button">Perfil</div>
+        </section>
+
+        <div class="stats-grid" style="margin-top: 30px;">
             <div class="stat-item-dash">
                 <span class="stat-value-dash">{{ total_ejercicios }}</span>
                 <span class="stat-label-dash">Ejercicios Realizados</span>
@@ -49,17 +58,8 @@
             </div>
         </div>
 
-        <section class="navigation-grid">
-            <a href="{{ url_for('usuario.examen') }}" class="nav-button">Examen diagnostico</a>
-            <a href="{{ url_for('usuario.ruta') }}" class="nav-button">Rutas de aprendizaje</a>
-            <a href="{{ url_for('usuario.practica') }}" class="nav-button">Practica</a>
-            <a href="{{ url_for('usuario.progreso') }}" class="nav-button">Progreso</a>
-            <a href="{{ url_for('usuario.tutor') }}" class="nav-button">Tutor IA</a>
-            <div class="nav-button placeholder-button">Perfil</div>
-        </section>
-
         <section class="activity-section">
-            <h3 style="color: var(--blossom-purple); font-weight: bold;">Actividad Reciente</h3>
+            <h3 style="color: var(--blossom-purple); font-weight: bold; margin-bottom: 15px;">Actividad Reciente</h3>
             <table class="styled-table-dash">
                 <thead>
                     <tr>

@@ -2008,3 +2008,11 @@ body.blossom-body {
         height: 200px; /* Reducimos altura para que no sea eterno el scroll */
     }
 }
+
+/* Estilos para el Badge de Decisión IA */
+.status-badge.avanzar { background-color: #d4edda; border: 2px solid #c3e6cb; }
+.status-badge.reforzar { background-color: #fff3cd; border: 2px solid #ffeeba; }
+.status-badge.mantener { background-color: #e2e3e5; border: 2px solid #d6d8db; }
+
+.status-badge h2 { font-family: 'Quicksand', sans-serif; font-weight: 700; margin-bottom: 5px; }
+.status-badge p { margin: 0; font-size: 1.1em; }

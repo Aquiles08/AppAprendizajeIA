@@ -366,84 +366,61 @@ def practica():
 def procesar_practica_json():
     data = request.get_json(silent=True, force=True)
     u_id = session.get('usuario_id')
-    contexto = session.get('practica_contexto') # Contiene tema_id, subtema_id, etc.
+    contexto = session.get('practica_contexto')
     
-    print(f"DEBUG: Datos recibidos en JSON: {data}")
-    
-    if not data:
-        return jsonify({"status": "error", "message": "Datos no recibidos correctamente"}), 400
-    if not u_id or not contexto:
-        return jsonify({"status": "error", "message": "Sesión expirada o sin contexto"}), 400
+    if not data or not u_id or not contexto:
+        return jsonify({"status": "error", "message": "Sesión expirada"}), 400
 
-    # --- 1. DETECCIÓN DE ERRORES CON IA ---
-    error_detectado = "Ninguno"
     aciertos = int(data.get('aciertos', 0))
     total = int(data.get('total', 0))
+    detalles = data.get('detalles', [])
 
+    # --- 1. GUARDAR EN SESIÓN PARA LA VISTA DE RESULTADOS ---
+    session['ultimo_puntaje'] = aciertos
+    session['total_ejercicios'] = total
+    session['detalles_practica'] = detalles
+
+    # --- 2. DETECCIÓN DE ERRORES CON IA (Tu lógica original) ---
+    error_detectado = "Ninguno"
     if aciertos < total:
         try:
             from services.ia_service import AIService
             ai_service = AIService()
-            # Le pedimos a la IA que clasifique el error basándose en el tema
             error_detectado = ai_service.analizar_error_pedagogico(
                 tema=contexto.get('nombre_tema', 'Matemáticas'), 
-                preguntas_fallidas="El alumno falló ejercicios de práctica estándar"
+                preguntas_fallidas="Práctica con errores"
             )
-        except Exception as e:
-            print(f"⚠️ No se pudo analizar el error con IA: {e}")
+        except:
             error_detectado = "Indeterminado"
 
-    # --- 2. REGISTRAR EN PROGRESO USUARIO (Con tiempo y error) ---
+    # --- 3. REGISTRAR EN DB Y LÓGICA BLOSSOM (Tu lógica original) ---
     try:
         nuevo_progreso = ProgresoUsuario(
             usuario_id=u_id,
             id_tema=contexto['tema_id'],
             ejercicios_realizados=total,
             aciertos=aciertos,
-            dificultad_alcanzada="Normal"
+            dificultad_alcanzada="Normal",
+            tiempo_segundos=int(data.get('tiempo', 0)),
+            tipo_error_comun=error_detectado
         )
-        # Campos nuevos para el reporte del profesor
-        nuevo_progreso.tiempo_segundos = int(data.get('tiempo', 0))
-        nuevo_progreso.tipo_error_comun = error_detectado
-        
         db.session.add(nuevo_progreso)
-        # Todavía no hacemos commit, esperamos a la lógica de la ruta
+
+        if total > 0 and (aciertos / total) >= 0.7:
+            sub = ProgresoSubtema.query.get(contexto['subtema_id'])
+            if sub and not sub.completado:
+                sub.completado = True
+                sub.fecha_completado = datetime.now()
+                tema_padre = sub.tema_padre
+                if tema_padre:
+                    listos = len([s for s in tema_padre.subtemas_progreso if s.completado])
+                    tema_padre.puntuacion_max = (listos / len(tema_padre.subtemas_progreso)) * 100
+        
+        db.session.commit()
     except Exception as e:
-        print(f"❌ Error al crear objeto ProgresoUsuario: {e}")
+        print(f"Error DB: {e}")
 
-    # --- 3. LÓGICA DE AVANCE EN LA RUTA (BLOSSOM) ---
-    if total > 0 and (aciertos / total) >= 0.7:
-        sub = ProgresoSubtema.query.get(contexto['subtema_id'])
-        if sub and not sub.completado:
-            sub.completado = True
-            sub.fecha_completado = datetime.now()
-            
-            tema_padre = sub.tema_padre
-            if tema_padre:
-                total_subs = len(tema_padre.subtemas_progreso)
-                listos = len([s for s in tema_padre.subtemas_progreso if s.completado])
-                
-                # Actualizar progreso visual (%)
-                tema_padre.puntuacion_max = (listos / total_subs) * 100
-                
-                # Desbloqueo del siguiente tema
-                if listos == total_subs:
-                    tema_padre.estado = 'Completado'
-                    sig = ProgresoTema.query.filter_by(
-                        id_usuario=u_id, 
-                        id_tema=tema_padre.id_tema + 1
-                    ).first()
-                    if sig and sig.estado == 'Bloqueado':
-                        sig.estado = 'Disponible'
-    
-    # Guardamos todo (Estadísticas + Avance de Ruta)
-    db.session.commit()
-
-    return jsonify({
-        "status": "success", 
-        "message": "Progreso guardado",
-        "error_identificado": error_detectado
-    })
+    return jsonify({"status": "success", "error_identificado": error_detectado})
 # --- Practica: Finalizar ---
 @usuario_bp.route("/finalizar_practica", methods=['POST'])
 def finalizar_practica():
@@ -464,21 +441,27 @@ def finalizar_practica():
     return jsonify({"status": "success", "message": "Progreso registrado correctamente"})  
 
 # --- Resultados ---
-@usuario_bp.route("/resultados")
-def resultados():
-    # Obtenemos los últimos resultados de la DB
-    ultimo_progreso = ProgresoUsuario.query.filter_by(usuario_id=session['usuario_id']).order_by(ProgresoUsuario.fecha.desc()).first()
+@usuario_bp.route("/resultado_practica")
+def resultado_practica():
+    u_id = session.get('usuario_id')
+    if not u_id:
+        return redirect(url_for('usuario.login'))
     
-    if not ultimo_progreso:
-        return redirect(url_for('usuario.dashboard'))
+    aciertos = session.get('ultimo_puntaje', 0)
+    total = session.get('total_ejercicios', 0)
+    resultados = session.get('detalles_practica', [])
 
-    motor = MotorIA()
-    # La IA analiza el último desempeño
-    decision = motor.decidir_accion(ultimo_progreso.ejercicios_realizados, ultimo_progreso.aciertos)
+    if not resultados:
+        return redirect(url_for('usuario.dashboard'))
     
-    return render_template('resultados.html', 
-                           progreso=ultimo_progreso, 
-                           decision=decision)
+    motor = MotorIA()
+    decision = motor.decidir_accion(aciertos, total)
+
+    return render_template("resultado_practica.html", 
+                           aciertos=aciertos, 
+                           total=total, 
+                           resultados=resultados,
+                           decision =decision)
 
 # --- Progreso ---
 @usuario_bp.route('/progreso')

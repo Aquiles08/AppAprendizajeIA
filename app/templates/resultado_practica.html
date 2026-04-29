@@ -28,6 +28,19 @@
             <a href="{{ url_for('usuario.dashboard') }}" class="btn-inicio-outline">Inicio</a>
         </div>
 
+        <div class="status-badge {% if decision == 'AVANZAR' %}avanzar{% elif decision == 'REFORZAR' %}reforzar{% else %}mantener{% endif %}" style="padding: 20px; border-radius: 15px; margin-bottom: 30px; text-align: center;">
+            {% if decision == 'AVANZAR' %}
+                <h2 style="margin: 0; color: #155724;"> ¡Excelente!</h2>
+                <p>Has dominado este tema. Blossom ha habilitado el siguiente nivel en tu ruta.</p>
+            {% elif decision == 'REFORZAR' %}
+                <h2 style="margin: 0; color: #856404;"> ¡No te rindas!</h2>
+                <p>Necesitamos practicar un poco más para fortalecer tus bases en este tema.</p>
+            {% else %}
+                <h2 style="margin: 0; color: #383d41;"> ¡Falta práctica!</h2>
+                <p>Un poco más de práctica te ayudará a mejorar</p>
+            {% endif %}
+        </div>
+
         <div class="questions-area">
             {% for res in resultados %}
             <div class="blossom-question-card">

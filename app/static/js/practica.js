@@ -52,21 +52,33 @@ function validarIndividual(index, solucion, boton) {
 }
 
 async function finalizarSesion() {
-    // --- NUEVO: Cálculo del tiempo en segundos ---
     const tiempoFinal = Date.now();
     const segundosTranscurridos = Math.floor((tiempoFinal - tiempoInicio) / 1000);
+
+    // Mapeamos los resultados de cada ejercicio para la página de resultados
+    const detallesRespuestas = EJERCICIOS_DATA.map((ej, index) => {
+        const input = document.getElementById(`resp-${index}`);
+        const userRes = input.value.trim();
+        const correctRes = String(ej.solucion).trim();
+        
+        return {
+            pregunta: ej.pregunta,
+            tu_respuesta: userRes,
+            correcta: ej.solucion,
+            explicacion: ej.explicacion,
+            es_correcta: (userRes.replace(/\s+/g, '').toLowerCase() === correctRes.replace(/\s+/g, '').toLowerCase())
+        };
+    });
 
     const data = {
         aciertos: Number(aciertos),
         total: Number(totalEjercicios),
         tema: String(TEMA_ACTUAL),
-        tiempo: segundosTranscurridos // <--- Enviamos el tiempo a la base de datos
+        tiempo: segundosTranscurridos,
+        detalles: detallesRespuestas // <--- El paquete completo
     };
 
-    console.log("Enviando al servidor:", data);
-
     try {
-        // Asegúrate de que la URL coincida con tu Blueprint (sin /usuario si así quedó)
         const response = await fetch('procesar_practica_json', { 
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -76,11 +88,8 @@ async function finalizarSesion() {
         const resultado = await response.json();
 
         if (resultado.status === "success") {
-            // Si la IA identificó un error, podrías mostrarlo antes de salir (opcional)
-            if (resultado.error_identificado && resultado.error_identificado !== "Ninguno") {
-                console.log("Análisis de IA: El alumno tiene problemas con " + resultado.error_identificado);
-            }
-            window.location.href = "ruta";
+            // Cambiamos el redireccionamiento a la ruta correcta
+            window.location.href = "resultado_practica"; 
         } else {
             alert("Error: " + resultado.message);
         }
