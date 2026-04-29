@@ -338,7 +338,8 @@ def practica():
     ejercicios = ia_service.generar_ejercicios_ia(
         tema=f"{progreso_t.nombre_tema}: {subtema_actual.nombre_subtema}", 
         dificultad=config['dificultad'], 
-        cantidad=config['cantidad']
+        cantidad=config['cantidad'],
+        tutor_mode=user.tutor_mode
     )
 
     # Respaldo: Si la IA falla, usamos tu Generador local
@@ -384,9 +385,7 @@ def procesar_practica_json():
     error_detectado = "Ninguno"
     if aciertos < total:
         try:
-            from services.ia_service import AIService
-            ai_service = AIService()
-            error_detectado = ai_service.analizar_error_pedagogico(
+            error_detectado = ia_service.analizar_error_pedagogico(
                 tema=contexto.get('nombre_tema', 'Matemáticas'), 
                 preguntas_fallidas="Práctica con errores"
             )
@@ -486,48 +485,89 @@ def tutor():
     if not u_id:
         return redirect(url_for('usuario.login'))
     
+    # Obtenemos al usuario para saber su nivel y su modo de tutoría
+    user = Usuario.query.get(u_id)
+    print(f"DEBUG: El modo actual de {user.nombre} es {user.tutor_mode}")
+    
     if request.method == "POST":
         datos = request.get_json()
         pregunta_usuario = datos.get("mensaje")
 
-        # 1. Guardar lo que escribió 
+        # 1. Guardar lo que escribió el usuario en la DB
         nuevo_msj = HistorialTutor(usuario_id=u_id, contenido=pregunta_usuario, es_bot=False)
         db.session.add(nuevo_msj)
 
         try:
-            # Llamada a Gemini 2.5 (tu código del test_aq)
-            response = client.models.generate_content(
-                model="gemini-2.5-flash", 
-                contents=pregunta_usuario
-            )
-            respuesta_ia = response.text
             
-            # 2. Guardar lo que respondió el Robot
+            # Llamamos a la función que creamos antes pasando el modo del usuario
+            respuesta_ia = ia_service.obtener_respuesta_tutor(
+                pregunta_usuario, 
+                tutor_mode=user.tutor_mode,
+                enfoques=user.enfoque_temas
+            )
+            
+            # 3. Guardar lo que respondió el Robot en la DB
             respuesta_bot = HistorialTutor(usuario_id=u_id, contenido=respuesta_ia, es_bot=True)
             db.session.add(respuesta_bot)
+            db.session.commit() # Guardamos la conversación completa
             
-            db.session.commit() # Guardamos ambos mensajes en MySQL
             return jsonify({"respuesta": respuesta_ia})
+            
         except Exception as e:
             db.session.rollback()
-            return jsonify({"respuesta": f"Error: {str(e)}"}), 500
+            print(f"Error en tutor: {e}")
+            return jsonify({"respuesta": "Lo siento, mi conexión se interrumpió. ¿Podrías repetir?"}), 500
 
-    # 3. Al cargar (GET), traer el historial ordenado por fecha
+    # 4. Al cargar (GET), traer el historial real de la DB ordenado
     historial = HistorialTutor.query.filter_by(usuario_id=u_id).order_by(HistorialTutor.fecha.asc()).all()
-    user = Usuario.query.get(u_id)
+    
     return render_template("tutor.html", historial=historial, user=user)
-# --- Tutor: Preguntar ---
+
+# --- Tutor: Preguntar (Mantenemos por si usas el form tradicional) ---
 @usuario_bp.route("/preguntar_tutor", methods=["POST"])
 def preguntar_tutor():
+    # Nota: Este método lo mantenemos como respaldo, pero el de arriba con JSON
+    # es el que hace la magia con el JavaScript que pusimos en tutor.html
     pregunta = request.form.get("pregunta")
+    u_id = session.get('usuario_id')
+    user = Usuario.query.get(u_id)
     
-    # Simulamos un historial para que veas cómo se ve en el HTML
-    historial_simulado = [
-        {"rol": "Usuario", "texto": pregunta},
-        {"rol": "Tutor IA", "texto": f"Claro, sobre '{pregunta}', mi consejo es que revises las bases de cálculo..."}
-    ]
+    # Podrías redirigir al tutor o procesar aquí también
+    return redirect(url_for('usuario.tutor'))
+
+# --- Perfil ---
+@usuario_bp.route("/perfil")
+def perfil():
+    u_id = session.get('usuario_id')
+    if not u_id:
+        return redirect(url_for('usuario.login')) # O a tu login
     
-    return render_template("tutor.html", historial=historial_simulado)
+    user = Usuario.query.get(u_id)
+    return render_template("perfil.html", user=user)
+# --- Actualizar Perfil ---
+@usuario_bp.route("/actualizar_perfil", methods=['POST'])
+def actualizar_perfil():
+    u_id = session.get('usuario_id')
+    if not u_id:
+        return redirect(url_for('auth.login')) # O tu ruta de login
+    
+    user = Usuario.query.get(u_id)
+    
+    # Capturamos datos del formulario
+    user.tutor_mode = request.form.get('tutor_mode')
+    temas_lista = request.form.getlist('temas')
+    user.enfoque_temas = ",".join(temas_lista)
+    
+    try:
+        db.session.commit()
+        flash("¡Preferencias actualizadas con éxito! Blossom ahora está configurado a tu gusto.", "success")
+        return redirect(url_for('usuario.perfil'))
+    except Exception as e:
+        db.session.rollback()
+        flash("Hubo un error al guardar los cambios.", "error")
+        return f"Error al actualizar: {e}"
+    
+    return redirect(url_for('usuario.perfil'))
 
 # --- LOGOUT ---
 @usuario_bp.route("/logout")
