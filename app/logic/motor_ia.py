@@ -7,13 +7,20 @@ class MotorIA:
         self.UMBRAL_REFUERZO = 0.60
         self.MINIMO_EJERCICIOS = 5
 
-        self.MAPA_RUTA = {
-            'Fundamentos': 'Ecuaciones Lineales',
-            'Ecuaciones Lineales': 'Sistema de Ecuaciones',
-            'Sistema de Ecuaciones': 'Ecuaciones Cuadráticas',
-            'Ecuaciones Cuadráticas': 'Funciones',
-            'Funciones': 'Cálculo Diferencial'
-        }
+        self.MAPA_RUTAS = {
+        1: "Fundamentos del Álgebra",
+        2: "Lenguaje Algebraico",
+        3: "Operaciones con Polinomios",
+        4: "Factorización",
+        5: "Ecuaciones de Primer Grado",
+        6: "Sistemas de Ecuaciones",
+        7: "Ecuaciones de Segundo Grado",
+        8: "Desigualdades",
+        9: "Funciones",
+        10: "Exponentes y Radicales",
+        11: "Expresiones Racionales",
+        12: "Logaritmos"
+    }
 
     # 1. ERROR CORREGIDO: Se añadió 'self' y se eliminó el código del controlador de aquí
     def decidir_accion(self, total_ejercicios, aciertos):

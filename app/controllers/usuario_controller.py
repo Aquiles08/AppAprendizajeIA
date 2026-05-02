@@ -254,55 +254,75 @@ def procesar_examen():
     
     return render_template("resultado_examen.html", puntaje=puntaje, nivel=user.nivel, aciertos=aciertos, total=total)
 
-#--- Ruta --- 
+#--- Ruta Corregida --- 
 @usuario_bp.route("/ruta")
 def ruta():
     u_id = session.get('usuario_id')
     if not u_id:
         return redirect(url_for('usuario.login'))
     
+    # 1. FORZAR REFRESCO: Obligamos a la sesión a olvidar datos viejos 
+    # para leer los cambios reales que hizo procesar_practica_json
+    db.session.expire_all()
+    
     motor = MotorIA()
     progresos_db = ProgresoTema.query.filter_by(id_usuario=u_id).order_by(ProgresoTema.id_tema).all()
 
     modulos_dinamicos = []
     for p in progresos_db:
-        # CALCULAMOS EL PROGRESO REAL:
-        # Contamos cuántos subtemas tiene y cuántos están en True
-        total_subtemas = len(p.subtemas_progreso)
-        completados = len([s for s in p.subtemas_progreso if s.completado])
+        # 2. CALCULO DE SEGURIDAD:
+        # Nos aseguramos de contar los subtemas hijos directamente de la DB
+        subtemas_hijos = p.subtemas_progreso
+        total_subtemas = len(subtemas_hijos)
+        completados = len([s for s in subtemas_hijos if s.completado])
         
-        porcentaje = round((completados / total_subtemas) * 100) if total_subtemas > 0 else 0
+        # Calculamos el porcentaje real basado en los hijos
+        porcentaje_calculado = round((completados / total_subtemas) * 100) if total_subtemas > 0 else 0
         
-        # Guardamos el porcentaje en la DB para que persista
-        p.puntuacion_max = porcentaje 
+        # Sincronizamos la DB solo si hubo un cambio (para no saturar el commit)
+        if p.puntuacion_max != porcentaje_calculado:
+            p.puntuacion_max = porcentaje_calculado
+        
+        # Si todos los hijos están en True y el estado no es completado, corregimos
+        if completados == total_subtemas and total_subtemas > 0:
+            if p.estado != 'Completado':
+                p.estado = 'Completado'
         
         modulos_dinamicos.append({
             'id': p.id_tema,
             'nombre': p.nombre_tema,
-            'progreso': porcentaje,
+            'progreso': p.puntuacion_max, # Mandamos el valor persistente
             'status': p.estado.lower(),
-            'subtemas': [s.nombre_subtema for s in p.subtemas_progreso]
+            'subtemas': [s.nombre_subtema for s in subtemas_hijos]
         })
 
-    # Buscamos qué subtema le toca practicar (el primero no completado del tema disponible)
-    tema_actual_obj = next((p for p in progresos_db if p.estado == 'Disponible'), None)
-    subtema_pendiente = "Inicio"
+    # 3. DETERMINAR SIGUIENTE RETO
+    # Buscamos el primer tema que no esté completado
+    tema_actual_obj = next((p for p in progresos_db if p.estado != 'Completado'), None)
     
-    if tema_actual_obj:
+    # Si no hay temas pendientes, todo está terminado
+    if not tema_actual_obj:
+        proximo_nombre = "¡Curso Completado!"
+        subtema_pendiente = "Felicidades"
+    else:
+        proximo_nombre = tema_actual_obj.nombre_tema
+        # Buscamos el primer subtema hijo que NO esté completado
         sub_obj = next((s for s in tema_actual_obj.subtemas_progreso if not s.completado), None)
-        if sub_obj:
-            subtema_pendiente = sub_obj.nombre_subtema
+        subtema_pendiente = sub_obj.nombre_subtema if sub_obj else "Evaluación Final"
 
-    db.session.commit() # Guardamos los porcentajes actualizados
+    # Guardamos cualquier corrección de estados o porcentajes realizada arriba
+    db.session.commit() 
 
-    # Obtenemos el usuario para acceder a su nivel
+    # Obtenemos el usuario para su nivel
     user = Usuario.query.get(u_id)
 
     return render_template(
         "ruta.html", 
-        ruta={'proximo_reto': tema_actual_obj.nombre_tema if tema_actual_obj else "Fin", 
-              'subtema': subtema_pendiente,
-              'config_practica': motor.generar_configuracion_ejercicios(user.nivel, "practica") }, 
+        ruta={
+            'proximo_reto': proximo_nombre, 
+            'subtema': subtema_pendiente,
+            'config_practica': motor.generar_configuracion_ejercicios(user.nivel, "practica") 
+        }, 
         modulos=modulos_dinamicos
     )
 
@@ -374,12 +394,10 @@ def procesar_practica_json():
     total = int(data.get('total', 0))
     detalles = data.get('detalles', [])
 
-    # --- 1. GUARDAR EN SESIÓN PARA LA VISTA DE RESULTADOS ---
     session['ultimo_puntaje'] = aciertos
     session['total_ejercicios'] = total
     session['detalles_practica'] = detalles
 
-    # --- 2. DETECCIÓN DE ERRORES CON IA (Tu lógica original) ---
     error_detectado = "Ninguno"
     if aciertos < total:
         try:
@@ -390,34 +408,57 @@ def procesar_practica_json():
         except:
             error_detectado = "Indeterminado"
 
-    # --- 3. REGISTRAR EN DB Y LÓGICA BLOSSOM (Tu lógica original) ---
     try:
+        # 1. Historial de práctica
         nuevo_progreso = ProgresoUsuario(
             usuario_id=u_id,
             id_tema=contexto['tema_id'],
             ejercicios_realizados=total,
             aciertos=aciertos,
             dificultad_alcanzada="Normal",
-            tiempo_segundos=int(data.get('tiempo', 0)),
-            tipo_error_comun=error_detectado
         )
         db.session.add(nuevo_progreso)
 
-        if total > 0 and (aciertos / total) >= 0.7:
-            sub = ProgresoSubtema.query.get(contexto['subtema_id'])
-            if sub and not sub.completado:
+        # 2. AVANCE DE BARRA (Solo si aprobó con >= 60%)
+        if total > 0 and (aciertos / total) >= 0.6:
+            sub = ProgresoSubtema.query.get(contexto.get('subtema_id'))
+            
+            if not sub:
+                prog_t = ProgresoTema.query.filter_by(id_usuario=u_id, id_tema=contexto['tema_id']).first()
+                if prog_t:
+                    sub = ProgresoSubtema.query.filter_by(id_progreso_tema=prog_t.id_progreso, completado=False).first()
+
+            if sub:
                 sub.completado = True
                 sub.fecha_completado = datetime.now()
+                db.session.flush() # Empuja el True a la DB temporalmente
+
                 tema_padre = sub.tema_padre
                 if tema_padre:
-                    listos = len([s for s in tema_padre.subtemas_progreso if s.completado])
-                    tema_padre.puntuacion_max = (listos / len(tema_padre.subtemas_progreso)) * 100
-        
-        db.session.commit()
-    except Exception as e:
-        print(f"Error DB: {e}")
+                    db.session.refresh(tema_padre) # Refresca la lista de subtemas
+                    subtemas = tema_padre.subtemas_progreso
+                    listos = len([s for s in subtemas if s.completado])
+                    total_s = len(subtemas)
+                    
+                    porcentaje = round((listos / total_s) * 100) if total_s > 0 else 0
+                    tema_padre.puntuacion_max = porcentaje
+                    
+                    if listos == total_s:
+                        tema_padre.estado = 'Completado'
+                        siguiente = ProgresoTema.query.filter_by(
+                            id_usuario=u_id, 
+                            id_tema=tema_padre.id_tema + 1
+                        ).first()
+                        if siguiente and siguiente.estado == 'Bloqueado':
+                            siguiente.estado = 'Disponible'
 
-    return jsonify({"status": "success", "error_identificado": error_detectado})
+        db.session.commit()
+        return jsonify({"status": "success", "error_identificado": error_detectado})
+
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error DB: {e}")
+        return jsonify({"status": "error", "message": str(e)}), 500
 # --- Practica: Finalizar ---
 @usuario_bp.route("/finalizar_practica", methods=['POST'])
 def finalizar_practica():

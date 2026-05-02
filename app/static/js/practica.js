@@ -79,7 +79,7 @@ async function finalizarSesion() {
     };
 
     try {
-        const response = await fetch('procesar_practica_json', { 
+        const response = await fetch('/procesar_practica_json', { 
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
