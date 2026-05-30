@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Personalidad del Tutor:"
+        android:textStyle="bold" />
+
+    <Spinner
+        android:id="@+id/spinnerModo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Temas de enfoque:"
+        android:textStyle="bold" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <GridLayout
+            android:id="@+id/gridTemas"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:columnCount="1">
+            <CheckBox android:id="@+id/cb1" android:text="Fundamentos" android:layout_width="match_parent"/>
+            <CheckBox android:id="@+id/cb2" android:text="Lenguaje Algebraico" android:layout_width="match_parent"/>
+            <CheckBox android:id="@+id/cb3" android:text="Polinomios" android:layout_width="match_parent"/>
+            <CheckBox android:id="@+id/cb4" android:text="Factorización" android:layout_width="match_parent"/>
+        </GridLayout>
+    </ScrollView>
+
+    <Button
+        android:id="@+id/btnGuardar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Guardar Preferencias"
+        android:backgroundTint="#6200EE"
+        android:textColor="@android:color/white"/>
+
+    <Button
+        android:id="@+id/btnCerrarSesion"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="Cerrar Sesión"
+        android:backgroundTint="#FF5252"
+        android:textColor="@android:color/white"/>
+
+</LinearLayout>

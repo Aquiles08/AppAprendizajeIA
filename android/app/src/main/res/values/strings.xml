@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Blossom</string>
+
+    <string-array name="modos_tutor">
+        <item>Paciente</item>
+        <item>Directo</item>
+        <item>Retador</item>
+    </string-array>
+</resources>

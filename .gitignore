@@ -1,4 +1,34 @@
-env/
+# --- Android ---
+.gradle/
+.idea/
+build/
+app/build/
+*.iml
+local.properties
+.DS_Store
+*.apk
+*.aab
+*.map
+.externalNativeBuild/
+.cxx/
+
+# --- Python / Flask ---
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
 .env
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+.pytest_cache/
+__pycache__/
+.coverage
+htmlcov/
+*.log
+*.pyc
+
+# --- General ---
+.vscode/
+.DS_Store

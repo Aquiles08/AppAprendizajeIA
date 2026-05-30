@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFF"
+    android:padding="20dp">
+
+    <TextView
+        android:id="@+id/tvNumeroPregunta"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:background="#6D2BCE"
+        android:gravity="center"
+        android:text="1"
+        android:textColor="#FFFFFF"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardPregunta"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        app:cardBackgroundColor="#EAEAEA"
+        app:cardCornerRadius="25dp"
+        app:cardElevation="0dp"
+        app:layout_constraintTop_toTopOf="@id/tvNumeroPregunta"
+        app:layout_constraintBottom_toBottomOf="@id/tvNumeroPregunta"
+        app:layout_constraintStart_toEndOf="@id/tvNumeroPregunta"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="20dp"
+            android:paddingVertical="12dp">
+
+            <TextView
+                android:id="@+id/tvTagTema"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Fundamentos del Álgebra"
+                android:textColor="#6D2BCE"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvTextoPregunta"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="¿Cuál es el resultado de 10 - 2 * 3 + 4?"
+                android:textColor="#333333"
+                android:textSize="16sp" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <RadioGroup
+        android:id="@+id/rgOpciones"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:orientation="vertical"
+        app:layout_constraintTop_toBottomOf="@id/cardPregunta">
+
+        <RadioButton
+            android:id="@+id/rbOpcionA"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:layout_marginBottom="12dp"
+            android:background="@android:color/transparent"
+            android:paddingHorizontal="16dp"
+            android:text="28"
+            android:textColor="#333333"
+            android:textSize="15sp" />
+
+        <RadioButton
+            android:id="@+id/rbOpcionB"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:layout_marginBottom="12dp"
+            android:background="@android:color/transparent"
+            android:paddingHorizontal="16dp"
+            android:text="8"
+            android:textColor="#333333"
+            android:textSize="15sp" />
+
+        <RadioButton
+            android:id="@+id/rbOpcionC"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:background="@android:color/transparent"
+            android:paddingHorizontal="16dp"
+            android:text="12"
+            android:textColor="#333333"
+            android:textSize="15sp" />
+    </RadioGroup>
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btnSiguiente"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="#6D2BCE"
+        android:text="SIGUIENTE PREGUNTA"
+        android:textColor="#FFFFFF"
+        android:textStyle="bold"
+        android:layout_marginBottom="20dp"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
