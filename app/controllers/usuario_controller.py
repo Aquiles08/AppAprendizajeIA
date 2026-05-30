@@ -760,3 +760,592 @@ def reporte_grupal():
     }
     
     return render_template("reportes.html", alumnos=alumnos, stats=stats_data)
+
+# ==========================================
+#        ENDPOINTS PARA LA APP MÓVIL
+# ==========================================
+
+@usuario_bp.route("/api/login", methods=["POST"])
+def api_login():
+    # 1. Recibir datos del celular
+    datos = request.get_json()
+    correo = datos.get("correo")
+    password_candidata = datos.get("contrasena")
+
+    # 2. Buscar al usuario usando tu modelo real
+    user = Usuario.query.filter_by(correo=correo).first()
+    
+    # 3. Validar usando tu bcrypt original
+    if user and bcrypt.check_password_hash(user.contrasena, password_candidata):
+        # SI TODO ESTÁ BIEN: Mandamos el JSON que espera Android
+        return jsonify({
+            "success": True,
+            "mensaje": f"¡Bienvenido {user.nombre}!",
+            "usuario_id": user.id_usuario,
+            "nombre": user.nombre,
+            "tipo_usuario": user.tipo_usuario
+        }), 200
+    else:
+        # SI ESTÁ MAL:
+        return jsonify({
+            "success": False,
+            "mensaje": "Correo o contraseña incorrectos. Inténtalo de nuevo."
+        }), 200
+        
+@usuario_bp.route("/api/registro", methods=["POST"])
+def api_registro():
+    # 1. Recibir los datos en formato JSON desde el celular
+    datos = request.get_json()
+    nombre = datos.get("nombre")
+    correo = datos.get("correo")
+    password = datos.get("contrasena")
+    # En Android pasamos el campo como "rol", lo cachamos y lo guardamos en tu variable
+    tipo_usuario = datos.get("rol") 
+
+    # Validación rápida por seguridad
+    if not nombre or not correo or not password:
+        return jsonify({
+            "success": False,
+            "mensaje": "Por favor, completa todos los campos."
+        }), 200
+
+    # 2. Validación original: Buscar si el correo ya existe en la DB
+    usuario_existente = Usuario.query.filter_by(correo=correo).first()
+    if usuario_existente:
+        return jsonify({
+            "success": False,
+            "mensaje": "Este correo ya está registrado. Por favor, intenta con otro o inicia sesión."
+        }), 200
+
+    try:
+        # 3. Hashear la contraseña usando tu bcrypt original de la web
+        password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
+
+        # 4. Crear y guardar el nuevo usuario con tus columnas reales
+        nuevo_usuario = Usuario(
+            nombre=nombre, 
+            correo=correo, 
+            contrasena=password_hash,
+            tipo_usuario=tipo_usuario 
+        )
+
+        db.session.add(nuevo_usuario)
+        db.session.commit()
+
+        # RESPUESTA EXITOSA: Coincide con tu RegistroResponse.java de Android
+        return jsonify({
+            "success": True,
+            "mensaje": "¡Cuenta creada con éxito!"
+        }), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            "success": False,
+            "mensaje": f"Error al guardar en la base de datos: {str(e)}"
+        }), 200
+        
+@usuario_bp.route("/api/dashboard", methods=["POST"])
+def api_dashboard():
+    # 1. Recibir el ID del usuario enviado por el celular
+    datos = request.get_json()
+    u_id = datos.get('usuario_id')
+    
+    if not u_id:
+        return jsonify({
+            "success": False,
+            "mensaje": "Sesión inválida o usuario no proporcionado."
+        }), 200 # Mandamos 200 con success False para manejarlo amigablemente en Android
+
+    # 2. Buscar al usuario y su progreso con tu lógica original
+    user = Usuario.query.get(u_id)  
+    if not user:
+        return jsonify({
+            "success": False,
+            "mensaje": "El usuario no existe en la base de datos."
+        }), 200
+
+    # Llamamos a tu servicio original
+    resumen = UsuarioService.obtener_resumen_progreso(u_id)
+    
+    historial_serializado = []
+    for item in resumen['historial']:
+        # Si 'item' es un objeto (como ProgresoUsuario), lo convertimos a dict
+        if hasattr(item, '__dict__'):
+            # Convertimos el objeto a un dict simple y eliminamos las referencias internas de SQLAlchemy
+            data = item.__dict__.copy()
+            data.pop('_sa_instance_state', None) # Esta es la clave que suele causar el error
+            historial_serializado.append(data)
+        else:
+            # Si ya es un dict, lo dejamos tal cual
+            historial_serializado.append(item)
+            
+    # 3. Responder con JSON puro listo para que Android lo pinte
+    return jsonify({
+        "success": True,
+        "nombre": user.nombre,
+        "tipo_usuario": user.tipo_usuario,
+        "total_ejercicios": resumen['total_ejercicios'],
+        "total_aciertos": resumen['total_aciertos'],
+        "historial": historial_serializado # Usamos la lista limpia
+    }), 200
+    
+
+# --- API: Obtener Preguntas del Examen ---
+@usuario_bp.route("/api/examen", methods=["GET"])
+def api_examen():
+    preguntas_algebra = [
+        {"id": 1, "tema": "Fundamentos del Álgebra", "texto": "¿Cuál es el resultado de 10 - 2 * 3 + 4?", "opciones": ["28", "8", "12"]},
+        {"id": 2, "tema": "Lenguaje Algebraico", "texto": "Traduce a lenguaje algebraico: 'El triple de un número aumentado en 7'", "opciones": ["3x + 7", "x³ + 7", "3(x + 7)"]},
+        {"id": 3, "tema": "Operaciones con Polinomios", "texto": "Simplifica: (5x² - 3x) + (2x² + 8x)", "opciones": ["7x² + 5x", "7x² - 11x", "10x² + 5x"]},
+        {"id": 4, "tema": "Factorización", "texto": "Factoriza x² - 25", "opciones": ["(x-5)(x-5)", "(x+5)(x-5)", "x(x-25)"]},
+        {"id": 5, "tema": "Ecuaciones de Primer Grado", "texto": "Resuelve: 2x + 10 = 20", "opciones": ["x = 5", "x = 15", "x = 10"]},
+        {"id": 6, "tema": "Sistemas de Ecuaciones", "texto": "En el sistema {x + y = 5, x - y = 1}, ¿cuánto vale x?", "opciones": ["x = 2", "x = 3", "x = 4"]},
+        {"id": 7, "tema": "Ecuaciones de Segundo Grado", "texto": "¿Cuáles son las raíces de x² - 5x + 6 = 0?", "opciones": ["x=2, x=3", "x=1, x=6", "x=-2, x=-3"]},
+        {"id": 8, "tema": "Desigualdades", "texto": "Resuelve: 3x > 12", "opciones": ["x < 4", "x > 4", "x > 36"]},
+        {"id": 9, "tema": "Funciones", "texto": "Si f(x) = 2x - 3, ¿cuánto es f(5)?", "opciones": ["7", "13", "10"]},
+        {"id": 10, "tema": "Exponentes y Radicales", "texto": "Simplifica: (x³)⁴", "opciones": ["x⁷", "x¹²", "x³⁴"]},
+        {"id": 11, "tema": "Expresiones Racionales", "texto": "Simplifica: (2x) / (4x²)", "opciones": ["1 / 2x", "2 / x", "x / 2"]},
+        {"id": 12, "tema": "Logaritmos", "texto": "¿Cuál es el valor de log₁₀(100)?", "opciones": ["10", "2", "1"]}
+    ]
+    return jsonify({"success": True, "preguntas": preguntas_algebra}), 200
+
+
+# --- API: Procesar Examen desde Celular ---
+@usuario_bp.route("/api/procesar_examen", methods=["POST"])
+def api_procesar_examen():
+    datos = request.get_json()
+    u_id = datos.get('usuario_id')
+    respuestas_usuario = datos.get('respuestas') # Espera un dict: {"1": "B", "2": "A", ...}
+
+    if not u_id or not respuestas_usuario:
+        return jsonify({"success": False, "mensaje": "Datos insuficientes."}), 200
+
+    temario_completo = {
+        1: ["Números reales", "Propiedades", "Jerarquía de operaciones"],
+        2: ["Variables y constantes", "Traducción de enunciados", "Términos semejantes"],
+        3: ["Suma y resta", "Multiplicación", "División de polinomios"],
+        4: ["Factor común", "Diferencia de cuadrados", "Trinomios"],
+        5: ["Ecuaciones lineales", "Despejes", "Problemas de aplicación"],
+        6: ["Método de sustitución", "Método de reducción", "Método gráfico"],
+        7: ["Fórmula general", "Factorización de cuadráticas", "Discriminante"],
+        8: ["Desigualdades lineales", "Intervalos", "Inecuaciones"],
+        9: ["Concepto de función", "Dominio y rango", "Evaluación de funciones"],
+        10: ["Leyes de exponentes", "Radicales", "Simplificación"],
+        11: ["Fracciones algebraicas", "Simplificación racional", "Operaciones"],
+        12: ["Definición de logaritmo", "Propiedades de logaritmos", "Ecuaciones logarítmicas"]
+    }
+
+    temas_nombres = [
+        "Fundamentos del Álgebra", "Lenguaje Algebraico", "Operaciones con Polinomios",
+        "Factorización", "Ecuaciones de Primer Grado", "Sistemas de Ecuaciones",
+        "Ecuaciones de Segundo Grado", "Desigualdades", "Funciones",
+        "Exponentes y Radicales", "Expresiones Racionales", "Logaritmos"
+    ]
+
+    soluciones = {
+        "1": "B", "2": "A", "3": "A", "4": "B",
+        "5": "A", "6": "B", "7": "A", "8": "B",
+        "9": "A", "10": "B", "11": "A", "12": "B"
+    }
+
+    aciertos = 0
+    total = 12
+
+    evaluacion_diagnostica = Evaluacion(
+        id_usuario=u_id, id_tema=0, puntuacion=0, 
+        fecha=datetime.now(), tipo_evaluacion='Examen'
+    )
+    db.session.add(evaluacion_diagnostica)
+    db.session.flush()
+
+    try:
+        ProgresoTema.query.filter_by(id_usuario=u_id).delete()
+        primer_fallo_encontrado = False
+
+        for i in range(1, total + 1):
+            resp_usuario = respuestas_usuario.get(str(i))
+            es_correcta = (resp_usuario == soluciones[str(i)])
+            
+            if es_correcta: aciertos += 1
+
+            if es_correcta and not primer_fallo_encontrado:
+                estado_tema = 'Completado'
+            elif not primer_fallo_encontrado:
+                estado_tema = 'Disponible'
+                primer_fallo_encontrado = True
+            else:
+                estado_tema = 'Bloqueado'
+
+            nuevo_progreso = ProgresoTema(
+                id_usuario=u_id,
+                id_tema=i,
+                nombre_tema=temas_nombres[i-1],
+                estado=estado_tema,
+                puntuacion_max=100.00 if estado_tema == 'Completado' else 0.00
+            )
+            db.session.add(nuevo_progreso)
+            db.session.flush()
+
+            subtemas_lista = temario_completo.get(i, ["General"])
+            for sub_nombre in subtemas_lista:
+                es_completo = True if estado_tema == 'Completado' else False
+                nuevo_sub = ProgresoSubtema(
+                    id_progreso_tema=nuevo_progreso.id_progreso,
+                    nombre_subtema=sub_nombre,
+                    completado=es_completo,
+                    fecha_completado=datetime.now() if es_completo else None
+                )
+                db.session.add(nuevo_sub)
+
+        puntaje = round((aciertos / total) * 100, 2)
+        evaluacion_diagnostica.puntuacion = puntaje
+        
+        user = Usuario.query.get(u_id)
+        if puntaje >= 85: user.nivel = "Avanzado"
+        elif puntaje >= 50: user.nivel = "Intermedio"
+        else: user.nivel = "Principiante"
+
+        db.session.commit()
+        
+        return jsonify({
+            "success": True,
+            "puntaje": puntaje,
+            "nivel": user.nivel,
+            "aciertos": aciertos,
+            "total": total
+        }), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"success": False, "mensaje": f"Error interno: {str(e)}"}), 200
+    
+@usuario_bp.route("/api/ruta", methods=["POST"])
+def api_ruta():
+    datos = request.get_json() or {}
+    u_id = datos.get('usuario_id')
+    
+    if not u_id:
+        return jsonify({"success": False, "mensaje": "Usuario no proporcionado o sesión inválida"}), 200
+    
+    # Recalculamos estados como ya lo tenías en tu lógica
+    db.session.expire_all()
+    progresos_db = ProgresoTema.query.filter_by(id_usuario=u_id).order_by(ProgresoTema.id_tema).all()
+
+    modulos_json = []
+    for p in progresos_db:
+        subtemas_hijos = p.subtemas_progreso
+        total_subtemas = len(subtemas_hijos)
+        completados = len([s for s in subtemas_hijos if s.completado])
+        
+        # Calculamos porcentaje real
+        porcentaje = round((completados / total_subtemas) * 100) if total_subtemas > 0 else 0
+        
+        # Actualizamos estado en BD si cambió
+        if completados == total_subtemas and total_subtemas > 0:
+            if p.estado != 'Completado': p.estado = 'Completado'
+        
+        modulos_json.append({
+            'id': p.id_tema,
+            'nombre': p.nombre_tema,
+            'progreso': porcentaje,
+            'status': p.estado.lower(), # "completado", "disponible", "bloqueado"
+            'subtemas': [s.nombre_subtema for s in subtemas_hijos]
+        })
+
+    # Determinar siguiente reto
+    tema_actual_obj = next((p for p in progresos_db if p.estado != 'Completado'), None)
+    
+    if not tema_actual_obj:
+        proximo = {"reto": "¡Curso Completado!", "subtema": "Felicidades"}
+    else:
+        sub_obj = next((s for s in tema_actual_obj.subtemas_progreso if not s.completado), None)
+        proximo = {
+            "reto": tema_actual_obj.nombre_tema, 
+            "subtema": sub_obj.nombre_subtema if sub_obj else "Evaluación Final"
+        }
+
+    return jsonify({
+        "success": True,
+        "ruta": proximo,
+        "modulos": modulos_json
+    }), 200
+    
+# --- API Práctica: Obtener Ejercicios para la App ---
+@usuario_bp.route("/api/practica", methods=["POST"])
+def api_practica():
+    datos = request.get_json() or {}
+    u_id = datos.get('usuario_id')
+    tema_id = datos.get('tema_id')
+    
+    if not u_id or not tema_id:
+        return jsonify({"success": False, "mensaje": "Parámetros incompletos"}), 200
+
+    # Obtenemos datos del usuario y su progreso en la ruta
+    user = Usuario.query.get(u_id)
+    progreso_t = ProgresoTema.query.filter_by(id_usuario=u_id, id_tema=tema_id).first()
+    
+    if not user or not progreso_t:
+        return jsonify({"success": False, "mensaje": "Usuario o tema no encontrado"}), 200
+
+    # Identificamos el primer subtema que no esté completado
+    subtemas_db = progreso_t.subtemas_progreso
+    if not subtemas_db:
+        return jsonify({"success": False, "mensaje": "El tema no contiene subtemas asignados"}), 200
+
+    subtema_actual = next((s for s in subtemas_db if not s.completado), subtemas_db[0])
+
+    # Consultamos al Motor IA para la configuración de dificultad
+    motor = MotorIA()
+    stats = UsuarioService.obtener_estadisticas_globales(u_id)
+    accion_ia = motor.decidir_accion(stats['total_ejercicios'], stats['total_aciertos'])
+    config = motor.generar_configuracion_ejercicios(user.nivel, accion_ia)
+
+    # Generamos los ejercicios dinámicos con Gemini
+    ejercicios = ia_service.generar_ejercicios_ia(
+        tema=f"{progreso_t.nombre_tema}: {subtema_actual.nombre_subtema}", 
+        dificultad=config['dificultad'], 
+        cantidad=config['cantidad'],  # Nota: Si tu ia_service usa 'cantidad', cámbialo por 'cantidad=config['cantidad']'
+        tutor_mode=user.tutor_mode
+    )
+
+    # Respaldo local si la IA tiene alta demanda o falla
+    if not ejercicios:
+        dificultad_map = {"Principiante": "fácil", "Intermedio": "media", "Avanzado": "difícil"}
+        config_local = {
+            'cantidad': config['cantidad'], 
+            'dificultad': dificultad_map.get(user.nivel, "fácil")
+        }
+        ejercicios = generador_local.crear_sesion(config_local)
+
+    # Formateamos los ejercicios para que Android los reciba limpiamente
+    ejercicios_parseados = []
+    for idx, ej in enumerate(ejercicios, start=1):
+        print(f"--- EJERCICIO GENERADO POR IA ({idx}): {ej}") # Tu print de debug
+        
+        ejercicios_parseados.append({
+            "id": idx,
+            "pregunta": ej.get('pregunta', ''),
+            # 🔥 CORRECCIÓN AQUÍ: Cambiamos de 'respuesta_correcta' a 'solucion'
+            "respuesta_correcta": str(ej.get('solucion', '')).strip() 
+        })
+
+    return jsonify({
+        "success": True,
+        "tema_id": tema_id,
+        "subtema_id": subtema_actual.id_subtema_prog,
+        "tema_nombre": progreso_t.nombre_tema,
+        "subtema_nombre": subtema_actual.nombre_subtema,
+        "ejercicios": ejercicios_parseados
+    }), 200
+# --- API Práctica: Procesar y Guardar Progreso desde la App ---
+@usuario_bp.route("/api/procesar_practica", methods=["POST"])
+def api_procesar_practica():
+    datos = request.get_json() or {}
+    u_id = datos.get('usuario_id')
+    tema_id = datos.get('tema_id')
+    subtema_id = datos.get('subtema_id')
+    aciertos = int(datos.get('aciertos', 0))
+    total = int(datos.get('total', 0))
+    detalles = datos.get('detalles', []) # [{ "pregunta": "...", "tu_respuesta": "...", "correcta": "..." }]
+
+    if not u_id or not tema_id or not subtema_id:
+        return jsonify({"success": False, "mensaje": "Datos de contexto de práctica incompletos"}), 200
+
+    # Analizar el error pedagógico con la IA si hubo fallas
+    error_detectado = "Explicación detallada no disponible. ¡Sigue practicando!"
+    if aciertos < total:
+        try:
+            preguntas_malas = "; ".join([f"Pregunta: {d.get('pregunta')} (Puso: {d.get('tu_respuesta')}, Era: {d.get('correcta')})" for d in detalles])
+            
+            # Dejamos la llamada a tu ia_service protegida para que si tarda más de 3 segundos, pase de largo
+            error_detectado = ia_service.analizar_error_pedagogico(
+                tema=datos.get('tema_nombre', 'Matemáticas'), 
+                preguntas_fallidas=preguntas_malas if preguntas_malas else "Práctica con errores"
+            )
+        except Exception as e:
+            print(f"La IA se tardó de más o falló, pero guardamos el progreso: {e}")
+            error_detectado = "No se pudo generar la retroalimentación de la IA en este momento, pero tu puntuación fue registrada."
+
+    try:
+        # 1. Registrar en el historial de prácticas global
+        nuevo_progreso = ProgresoUsuario(
+            usuario_id=u_id,
+            id_tema=tema_id,
+            ejercicios_realizados=total,
+            aciertos=aciertos,
+            dificultad_alcanzada="Normal",
+        )
+        db.session.add(nuevo_progreso)
+
+        # 2. Lógica de Avance de Barra (Aprobado con >= 60%)
+        if total > 0 and (aciertos / total) >= 0.6:
+            sub = ProgresoSubtema.query.get(subtema_id)
+            
+            if not sub:
+                prog_t = ProgresoTema.query.filter_by(id_usuario=u_id, id_tema=tema_id).first()
+                if prog_t:
+                    sub = ProgresoSubtema.query.filter_by(id_progreso_tema=prog_t.id_progreso, completado=False).first()
+
+            if sub:
+                sub.completado = True
+                sub.fecha_completado = datetime.now()
+                db.session.flush()
+
+                tema_padre = sub.tema_padre
+                if tema_padre:
+                    db.session.refresh(tema_padre)
+                    subtemas = tema_padre.subtemas_progreso
+                    listos = len([s for s in subtemas if s.completado])
+                    total_s = len(subtemas)
+                    
+                    porcentaje = round((listos / total_s) * 100) if total_s > 0 else 0
+                    tema_padre.puntuacion_max = porcentaje
+                    
+                    if listos == total_s:
+                        tema_padre.estado = 'Completado'
+                        siguiente = ProgresoTema.query.filter_by(
+                            id_usuario=u_id, 
+                            id_tema=tema_padre.id_tema + 1
+                        ).first()
+                        if siguiente and siguiente.estado == 'Bloqueado':
+                            siguiente.estado = 'Disponible'
+
+        db.session.commit()
+        
+        # Le respondemos a Android la confirmación junto con la analítica de IA
+        motor = MotorIA()
+        decision_ia = motor.decidir_accion(aciertos, total)
+
+        # RE-MAPEADO DE SEGURIDAD ESTABLE
+        detalles_retorno = []
+        for d in detalles:
+            pregunta_txt = d.get('pregunta', '')
+            resp_usuario = d.get('tu_respuesta', '')  # 👈 Captura el campo correcto mapeado desde Android
+            resp_correcta = d.get('correcta', '')
+            explicacion_txt = d.get('explicacion', 'Sin explicación')
+            
+            # Cálculo de estado bool
+            clean_user = str(resp_usuario).replace(" ", "").lower()
+            clean_correct = str(resp_correcta).replace(" ", "").lower()
+            es_correcta_bool = (clean_user == clean_correct) and (clean_user != "")
+
+            # Este diccionario dictará el formato exacto que desempaquetará tu ResultadoActivity
+            detalles_retorno.append({
+                "pregunta": pregunta_txt,
+                "tu_respuesta": resp_usuario,
+                "correcta": resp_correcta,
+                "explicacion": explicacion_txt,
+                "es_correcta": es_correcta_bool
+            })
+
+        return jsonify({
+            "success": True,
+            "mensaje": "Progreso guardado con éxito",
+            "decision_ia": decision_ia,
+            "error_identificado": error_detectado,
+            "detalles": detalles_retorno
+        }), 200
+
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error en Base de Datos de la App: {e}")
+        return jsonify({"success": False, "mensaje": f"Error interno: {str(e)}"}), 200
+
+@usuario_bp.route('/api/usuario/progreso/<int:usuario_id>', methods=['GET'])
+def api_obtener_progreso(usuario_id):
+    try:
+        user = Usuario.query.get(usuario_id)
+        if not user:
+            return jsonify({"success": False, "mensaje": "Usuario no encontrado"}), 200
+
+        # Consumimos el servicio ordinario que ya vimos qué trae
+        datos_reales = UsuarioService.obtener_resumen_progreso(usuario_id)
+        
+        # 🟢 EXTRAEMOS CON LAS LLAVES REALES Y LAS CONVERTIMOS A INT NATIVO:
+        # Usamos int() para limpiar el Decimal('22') y que sea un número JSON válido
+        ejercicios = int(datos_reales.get('total_ejercicios', 0))
+        aciertos = int(datos_reales.get('total_aciertos', 0))
+        
+        # Calculamos la efectividad matemáticamente si es que el servicio no la manda calculada
+        efectividad = 0
+        if ejercicios > 0:
+            efectividad = int((aciertos / ejercicios) * 100)
+
+        return jsonify({
+            "success": True,
+            "nivel": user.nivel,  # Ej: "Experto"
+            "efectividad": efectividad,
+            "ejercicios_resueltos": ejercicios,  # Mandará 22 perfectamente
+            "aciertos_totales": aciertos         # Mandará 19 perfectamente
+        }), 200
+
+    except Exception as e:
+        print(f"Error crítico en la API de progreso: {e}")
+        return jsonify({"success": False, "mensaje": str(e)}), 500
+    
+@usuario_bp.route("/api/tutor", methods=["POST"])
+def api_preguntar_tutor():
+    # 1. Ver qué encabezados recibimos (para saber si viene como JSON)
+    print(f"DEBUG Headers: {request.headers.get('Content-Type')}")
+    
+    # 2. Ver el cuerpo crudo que llega
+    raw_data = request.get_data()
+    print(f"DEBUG Cuerpo Crudo: {raw_data}")
+    
+    # 3. Intentar parsear
+    data = request.get_json(silent=True) # silent=True no da error si falla
+    
+    if data is None:
+        return jsonify({"success": False, "mensaje": "El servidor no pudo leer el JSON"}), 400
+        
+    pregunta = data.get("pregunta")
+    modo = data.get("modo", "paciente") 
+    
+    if not pregunta:
+        return jsonify({"success": False, "mensaje": "Pregunta vacía"}), 400
+
+    # Llamamos a tu método ya existente
+    respuesta = ia_service.obtener_respuesta_tutor(pregunta, tutor_mode=modo)
+    
+    return jsonify({
+        "success": True,
+        "respuesta": respuesta
+    }), 200
+
+# --- GET Perfil (Para que Android sepa cómo está configurado el usuario) ---
+@usuario_bp.route("/api/perfil", methods=["POST"])
+def api_perfil():
+    data = request.get_json()
+    u_id = data.get('usuario_id')
+    user = Usuario.query.get(u_id)
+    
+    if not user:
+        return jsonify({"success": False}), 404
+        
+    return jsonify({
+        "success": True,
+        "tutor_mode": user.tutor_mode or 'paciente',
+        "enfoque_temas": user.enfoque_temas or ''
+    })
+
+# --- POST Actualizar Perfil (Para guardar desde Android) ---
+@usuario_bp.route("/api/actualizar_perfil", methods=['POST'])
+def api_actualizar_perfil():
+    data = request.get_json()
+    u_id = data.get('usuario_id')
+    user = Usuario.query.get(u_id)
+    
+    if not user:
+        return jsonify({"success": False, "mensaje": "Usuario no encontrado"}), 404
+    
+    # Actualizar desde el JSON que manda Android
+    user.tutor_mode = data.get('tutor_mode')
+    user.enfoque_temas = data.get('enfoque_temas') # Puedes mandar una cadena separada por comas
+    
+    try:
+        db.session.commit()
+        return jsonify({"success": True})
+    except:
+        db.session.rollback()
+        return jsonify({"success": False, "mensaje": "Error en BD"}), 500
